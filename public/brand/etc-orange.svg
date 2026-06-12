@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 333.63 430.89">
+  <defs>
+    <style>
+      .cls-1 {
+        font-family: MachineITCbyBT-Regular, 'ITC Machine BT';
+        font-size: 48px;
+      }
+
+      .cls-1, .cls-2 {
+        fill: #c47537;
+      }
+
+      .cls-2 {
+        font-family: AzonixRegular, Azonix;
+        font-size: 32px;
+      }
+
+      .cls-3 {
+        stroke-miterlimit: 10;
+      }
+
+      .cls-3, .cls-4 {
+        fill: none;
+        stroke: #c47537;
+        stroke-width: 5px;
+      }
+
+      .cls-4 {
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+    </style>
+  </defs>
+  <g id="Layer_2">
+    <g id="Outliers">
+      <g id="Right">
+        <polyline class="cls-3" points="311.04 299.75 299.56 353.01 229.81 400.64"/>
+        <circle class="cls-3" cx="220.26" cy="404.97" r="10"/>
+        <circle class="cls-3" cx="314.05" cy="288.03" r="10"/>
+      </g>
+      <g id="Left">
+        <polyline class="cls-3" points="19.83 304.16 34.14 356.74 106.34 400.57"/>
+        <circle class="cls-3" cx="116.11" cy="404.38" r="10"/>
+        <circle class="cls-3" cx="16.2" cy="292.62" r="10"/>
+      </g>
+    </g>
+    <g id="Ball">
+      <path class="cls-3" d="M199.6,180.55s-30.08,3.9.9,38.98c32.65,36.97,28.65,26.97,30.65,63.97"/>
+      <circle class="cls-3" cx="165.65" cy="269" r="94"/>
+      <line class="cls-4" x1="166.65" y1="178" x2="166.65" y2="315.5"/>
+      <path class="cls-3" d="M131.15,182.28s30.08,3.9-.9,38.98c-32.65,36.97-28.65,26.97-30.65,63.97"/>
+      <path class="cls-4" d="M73.64,253.22s25.51-45.25,93.01-45.25c71.5,0,90.35,38.78,90.35,38.78"/>
+      <g id="Inside_Ball">
+        <circle class="cls-3" cx="232.15" cy="294.5" r="10"/>
+        <circle class="cls-3" cx="100.15" cy="294.5" r="10"/>
+        <circle class="cls-3" cx="167.15" cy="325.5" r="10"/>
+        <polyline class="cls-3" points="147.15 255.5 147.15 288.9 124.68 320.9"/>
+        <polyline class="cls-3" points="184.15 253.5 184.15 287.9 206.63 319.9"/>
+        <circle class="cls-3" cx="120.15" cy="326.5" r="10"/>
+        <circle class="cls-3" cx="211.15" cy="326.5" r="10"/>
+        <line class="cls-3" x1="73.15" y1="253.5" x2="257.15" y2="253.5"/>
+      </g>
+    </g>
+    <g id="Text">
+      <text class="cls-1" transform="translate(137.71 419.57)"><tspan x="0" y="0">ETC</tspan></text>
+      <text/>
+      <text class="cls-2" transform="translate(26.59 268.44) rotate(-81.79)"><tspan x="0" y="0">e</tspan></text>
+      <text class="cls-2" transform="translate(30.1 243.8) rotate(-73.71)"><tspan x="0" y="0">n</tspan></text>
+      <text class="cls-2" transform="translate(37.02 219.93) rotate(-65.22)"><tspan x="0" y="0">s</tspan></text>
+      <text class="cls-2" transform="translate(47.36 198.5) rotate(-59.19)"><tspan x="0" y="0">i</tspan></text>
+      <text class="cls-2" transform="translate(50.34 192.53) rotate(-52.77)"><tspan x="0" y="0">a</tspan></text>
+      <text class="cls-2" transform="translate(64.24 174.61) rotate(-43.92)"><tspan x="0" y="0"> </tspan></text>
+      <text class="cls-2" transform="translate(74.52 164.01) rotate(-34.17)"><tspan x="0" y="0">t</tspan></text>
+      <text class="cls-2" transform="translate(94.8 150.16) rotate(-22.4)"><tspan x="0" y="0">e</tspan></text>
+      <text class="cls-2" transform="translate(116 141.25) rotate(-12.7)"><tspan x="0" y="0">c</tspan></text>
+      <text class="cls-2" transform="translate(139.92 135.86) rotate(-4)"><tspan x="0" y="0">h</tspan></text>
+      <text class="cls-2" transform="translate(164.93 134.35) rotate(1.86)"><tspan x="0" y="0"> </tspan></text>
+      <text class="cls-2" transform="translate(179.95 134.5) rotate(8.25)"><tspan x="0" y="0">c</tspan></text>
+      <text class="cls-2" transform="translate(202.84 137.66) rotate(16.92)"><tspan x="0" y="0">o</tspan></text>
+      <text class="cls-2" transform="translate(225.03 144.19) rotate(27.66)"><tspan x="0" y="0">m</tspan></text>
+      <text class="cls-2" transform="translate(246.87 155.5) rotate(39.59)"><tspan x="0" y="0">m</tspan></text>
+      <text class="cls-2" transform="translate(265.87 171.13) rotate(51.24)"><tspan x="0" y="0">u</tspan></text>
+      <text class="cls-2" transform="translate(281.35 190.35) rotate(61.68)"><tspan x="0" y="0">n</tspan></text>
+      <text class="cls-2" transform="translate(292.81 212.59) rotate(67.61)"><tspan x="0" y="0">i</tspan></text>
+      <text class="cls-2" transform="translate(295.79 218.66) rotate(73.05)"><tspan x="0" y="0">t</tspan></text>
+      <text class="cls-2" transform="translate(303.1 242.42) rotate(81.11)"><tspan x="0" y="0">y</tspan></text>
+    </g>
+  </g>
+</svg>
