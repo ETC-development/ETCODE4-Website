@@ -22,8 +22,8 @@ export const ABOUT =
 export const STATS: { value: string; label: string }[] = [
   { value: "4th", label: "Edition" },
   { value: "20", label: "Teams on the floor" },
-  { value: "8-10", label: "Problems on the board" },
-  { value: "5", label: "Hours on the clock" },
+  { value: "16", label: "Problems on the board" },
+  { value: "4", label: "Phases" },
 ];
 
 export const PILLARS: { tag: string; title: string; desc: string }[] = [
