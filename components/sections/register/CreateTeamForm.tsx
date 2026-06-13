@@ -59,16 +59,16 @@ export default function CreateTeamForm() {
             >
               <Field
                 label="Team name"
-                placeholder="The Segfault Squad"
+                placeholder="xG10"
                 autoComplete="off"
                 hint="This is how your squad shows on the scoreboard."
                 error={errors.team_name?.message as string | undefined}
                 {...register("team_name")}
               />
               <Textarea
-                label="Why your team's in"
+                label="Why your team's in (Motivation)"
                 placeholder="What's your team about? Why ETCODE 4?"
-                hint="A sentence or two. This is your captain's pitch."
+                hint="This is your captain's pitch."
                 error={errors.motivation?.message as string | undefined}
                 {...register("motivation")}
               />

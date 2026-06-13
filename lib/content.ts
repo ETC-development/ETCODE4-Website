@@ -2,8 +2,8 @@ export const EVENT = {
   name: "ETCODE 4",
   organizer: "ENSIA Tech Community",
   tagline: "Three coders. One court. No timeouts.",
-  startISO: "2026-06-21T16:00:00+01:00",
-  endISO: "2026-06-22T18:16:00+01:00",
+  startISO: "2026-06-21T15:30:00+01:00",
+  endISO: "2026-06-22T18:15:00+01:00",
   venue: "ENSIA School, Sidi Abdellah, Algiers",
   registrationDeadlineISO: "2026-04-11T23:59:00+01:00",
   teamSize: 3,
@@ -21,9 +21,9 @@ export const ABOUT =
 
 export const STATS: { value: string; label: string }[] = [
   { value: "4th", label: "Edition" },
-  { value: "X", label: "Teams on the floor" },
-  { value: "X", label: "Problems on the board" },
-  { value: "X", label: "Hours on the clock" },
+  { value: "20", label: "Teams on the floor" },
+  { value: "8-10", label: "Problems on the board" },
+  { value: "5", label: "Hours on the clock" },
 ];
 
 export const PILLARS: { tag: string; title: string; desc: string }[] = [
@@ -35,12 +35,12 @@ export const PILLARS: { tag: string; title: string; desc: string }[] = [
   {
     tag: "02",
     title: "Strategy",
-    desc: "Ten problems, one shot clock. Call the right plays: who attacks which problem, when to pivot, when to take the open shot instead of forcing the hard one.",
+    desc: "Ten problems, three phases. Call the right plays: who attacks which problem, when to pivot, when to take the open shot instead of forcing the hard one.",
   },
   {
     tag: "03",
     title: "Teamwork",
-    desc: "One keyboard, three coders. The win goes to the squad that passes the ball, splitting the board, reviewing each other's code, and trusting the assist.",
+    desc: "The win goes to the squad that passes the ball, splitting the board, reviewing each other's code, and trusting the assist.",
   },
 ];
 
@@ -72,20 +72,27 @@ export const AGENDA: {
     day: "Game Day",
     date: "Sat · 21 Jun",
     blocks: [
-      { start: "15:00", end: "16:00", title: "Check-in & Draft", desc: "Teams arrive, seats assigned, machines and the judge verified." },
-      { start: "16:00", end: "16:30", title: "Opening Tip", desc: "Welcome, rules walkthrough, and the practice problem on the big screen." },
-      { start: "16:30", end: "17:00", title: "Warm-Up Round", desc: "A short unranked round to test the judge and shake off the nerves." },
-      { start: "17:00", end: "22:00", title: "Main Contest", desc: "Five hours on the clock. The full problem set, one machine per team." },
-      { start: "22:00", end: "22:30", title: "Scoreboard Freeze", desc: "Standings lock. The closing sprint plays out in the dark." },
+      { start: "14:00", end: "15:00", title: "Check-in", desc: "Teams arrive, seats assigned." },
+      { start: "15:00", end: "16:30", title: "Opening Ceremony", desc: "Welcome, rules walkthrough, and the practice problem on the big screen." },
+      { start: "16:30", end: "17:30", title: "Coffee Break", desc: "" },
+      { start: "17:30", end: "18:30", title: "Training Camp (Phase1)", desc: "Easy problems." },
+      { start: "18:30", end: "19:30", title: "Playoff Push", desc: "" },
+      { start: "19:30", end: "20:30", title: "Dinner", desc: "" },
+      { start: "20:30", end: "22:00", title: "Regular Session (Phase2)", desc: "Intermediate problems." },
+      { start: "22:00", end: "00:00", title: "Fun Activities", desc: "Open to everyone." },
+      { start: "00:00", end: "02:00", title: "Play-offs Push", desc: "Overtime." },
     ],
   },
   {
-    day: "Awards",
+    day: "Final Day",
     date: "Sun · 22 Jun",
     blocks: [
-      { start: "10:00", end: "11:00", title: "Editorial", desc: "Problem setters walk through the intended solutions and the trickiest tests." },
-      { start: "11:00", end: "12:00", title: "Unfreeze & Podium", desc: "The scoreboard thaws live; the top teams take the floor for the trophy." },
-      { start: "12:00", end: "13:00", title: "Closing & Photos", desc: "Sponsor word, group photo, and the after-game handshake line." },
+      { start: "08:00", end: "09:00", title: "Breakfast Service", desc: "" },
+      { start: "09:30", end: "11:30", title: "Phase 3", desc: "Hard problems." },
+      { start: "12:00", end: "13:00", title: "Launch Break", desc: "" },
+      { start: "13:30", end: "14:30", title: "Final Phase", desc: "" },
+      { start: "15:00", end: "16:00", title: "Coffee Break", desc: "" },
+      { start: "16:00", end: "17:00", title: "Closing Ceremony", desc: "" },
     ],
   },
 ];
@@ -98,12 +105,13 @@ export const MENTORS: {
   linkedin: string;
   number: string;
 }[] = [
-  { name: "Abdelkhalek BENKINIOUAR", role: "Head Judge", year: "Alumnus · ICPC Finalist", photo: "/brand/pfp.png", linkedin: "#", number: "01" },
-  { name: "Abdelhak KADOUCI", role: "Lead Problem Setter", year: "4th Year · AI", photo: "/brand/pfp.png", linkedin: "#", number: "07" },
-  { name: "Mohammed Abdullah HAMMADI", role: "Problem Setter", year: "3rd Year · Data Science", photo: "/brand/pfp.png", linkedin: "#", number: "11" },
-  { name: "Amani Boudjelal", role: "Contest Coach", year: "Alumna · SWE @ Scale", photo: "/brand/pfp.png", linkedin: "#", number: "23" },
-  { name: "Ryad Ouali", role: "Technical Lead", year: "4th Year · Systems", photo: "/brand/pfp.png", linkedin: "#", number: "08" },
-  { name: "Sara Mansouri", role: "Problem Setter", year: "3rd Year · Algorithms", photo: "/brand/pfp.png", linkedin: "#", number: "14" },
+  { name: "Abdelkhalek BENKINIOUAR", role: "Head Judge", year: "4th Year · ETC Dev Co-Manager", photo: "/mentors/kenny.jpg", linkedin: "https://www.linkedin.com/in/abdelkhalek-benkiniouar-921137325/", number: "01" },
+  { name: "Abdelhak KADOUCI", role: "Problem Setter", year: "3rd Year · ETCODE3 Winner", photo: "/mentors/kadouci.jpeg", linkedin: "https://www.linkedin.com/in/abdelhak-kadouci", number: "08" },
+  { name: "Mohammed Abdullah HAMMADI", role: "Problem Setter", year: "3rd Year · ETCODE3 Winner", photo: "/mentors/hamadi.jpg", linkedin: "https://www.linkedin.com/in/mohammed-hamadi-697668252/", number: "10" },
+  { name: "Khaled ZAABAT", role: "Problem Setter", year: "3rd Year · ETCODE3 Winner", photo: "/mentors/khaled.jpg", linkedin: "https://www.linkedin.com/in/khaled-zaabat-a57b4a299/", number: "11" },
+  { name: "Moulay BOUABDELLI", role: "Problem Setter", year: "4th Year · ETC Dev Co-Manaer", photo: "/mentors/moulay.png", linkedin: "https://www.linkedin.com/in/moulay-mohamed-bouabdelli-842151325/", number: "14" },
+  { name: "Mohammed FERHAOUI", role: "Problem Setter", year: "4th Year · ETC Web Dev Manager", photo: "/mentors/frix.jpeg", linkedin: "https://www.linkedin.com/in/mohamed-frihaoui-654b89300/", number: "07" },
+  { name: "Zyad KHERRAF", role: "Problem Setter", year: "4th Year", photo: "/mentors/zyad.jpeg", linkedin: "https://www.linkedin.com/in/zyad-kherraf-2222132a5/", number: "23" },
 ];
 
 export const FAQ: { q: string; a: string }[] = [
@@ -134,18 +142,13 @@ export const FAQ: { q: string; a: string }[] = [
 ];
 
 export const PRIZES: { place: string; reward: string; note?: string }[] = [
-  { place: "1st", reward: "The Champions' Trophy", note: "Cash pool · medals · the top spot on the wall" },
+  { place: "1st", reward: "The Champions' Trophy", note: "Cash pool · medals" },
   { place: "2nd", reward: "Runner-Up Medals", note: "Cash pool · ETC merch pack" },
   { place: "3rd", reward: "Podium Finish", note: "Medals · ETC merch pack" },
 ];
 
 export const SPONSORS: { name: string; url: string }[] = [
-  { name: "Partner One", url: "#" },
-  { name: "Partner Two", url: "#" },
-  { name: "Partner Three", url: "#" },
-  { name: "Partner Four", url: "#" },
-  { name: "Partner Five", url: "#" },
-  { name: "Partner Six", url: "#" },
+  { name: "Turkinvest", url: "https://www.turkinvestalgeria.com" },
 ];
 
 export const LAST_EDITION = { name: "ETCODE 3", year: "2025" } as const;

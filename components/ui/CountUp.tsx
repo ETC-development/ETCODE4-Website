@@ -12,10 +12,11 @@ export default function CountUp({ value, duration = 1.4 }: { value: string; dura
   const target = match ? parseInt(match[1], 10) : null;
   const suffix = match ? match[2] : "";
 
-  const [n, setN] = useState(reduced || target === null ? target ?? 0 : 0);
+  const [n, setN] = useState(target ?? 0);
 
   useEffect(() => {
     if (target === null || reduced || !inView) return;
+    setN(0);
     let raf = 0;
     let start = 0;
     const tick = (t: number) => {

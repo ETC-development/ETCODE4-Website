@@ -13,7 +13,7 @@ const SOCIALS = [
   { label: "Discord", href: EVENT.socials.discord, Icon: DiscordIcon },
 ].filter((s) => s.href && !s.href.includes("TODO"));
 
-const RIBBON = ["ETCODE 4", "Teams of 3", "ICPC Style", "Algiers", "Get Drafted", "No Timeouts"];
+const RIBBON = ["ETCODE 4", "Teams of 3", "ICPC Style", "ENSIA", "ETC", "Competitive Programming"];
 
 export default function Footer() {
   return (

@@ -34,9 +34,9 @@ export default function SoloForm() {
         {serverError && <FormError message={serverError} />}
         <ParticipantFields />
         <Textarea
-          label="Why you're in"
+          label="Why you're in (Motivation)"
           placeholder="What's your background? Why ETCODE 4?"
-          hint="A sentence or two. This helps admins draft you onto the right team."
+          hint="This helps admins draft you onto the right team."
           error={errors.motivation?.message as string | undefined}
           {...register("motivation")}
         />

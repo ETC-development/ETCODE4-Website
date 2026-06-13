@@ -27,7 +27,7 @@ export default function ParticipantFields() {
       <Field
         label="Email"
         type="email"
-        placeholder="you@university.dz"
+        placeholder="student.email@school.dz"
         autoComplete="email"
         error={err("email")}
         {...register("email")}
@@ -35,7 +35,7 @@ export default function ParticipantFields() {
       <Field
         label="Phone"
         type="tel"
-        placeholder="+213 ..."
+        placeholder="05 55 55 55 55"
         autoComplete="tel"
         error={err("phone")}
         {...register("phone")}
