@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 export default function CopyCode({ code }: { code: string }) {
-  const [copied, setCopied] = useState(false);
+  const [status, setStatus] = useState<"idle" | "copied" | "failed">("idle");
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => () => {
@@ -11,13 +11,16 @@ export default function CopyCode({ code }: { code: string }) {
   }, []);
 
   const copy = async () => {
+    if (timer.current) clearTimeout(timer.current);
     try {
       await navigator.clipboard.writeText(code);
-      setCopied(true);
-      if (timer.current) clearTimeout(timer.current);
-      timer.current = setTimeout(() => setCopied(false), 2200);
+      setStatus("copied");
     } catch {
+      // Clipboard API unavailable (non-HTTPS / permission / old browser).
+      // The code is select-all, so guide the user to copy it manually.
+      setStatus("failed");
     }
+    timer.current = setTimeout(() => setStatus("idle"), 3000);
   };
 
   return (
@@ -31,11 +34,22 @@ export default function CopyCode({ code }: { code: string }) {
         type="button"
         onClick={copy}
         data-cursor="target"
-        aria-live="polite"
         className="flex items-center justify-center gap-2 rounded-2xl border border-chalk/25 px-6 py-5 font-body text-caption font-semibold uppercase tracking-[0.16em] text-bone transition-colors duration-300 hover:border-orange hover:text-orange"
       >
-        {copied ? "Copied ✓" : "Copy code"}
+        {status === "copied"
+          ? "Copied ✓"
+          : status === "failed"
+            ? "Select & copy ↑"
+            : "Copy code"}
       </button>
+      {/* live region separate from the button so the result is announced reliably */}
+      <span aria-live="polite" className="sr-only">
+        {status === "copied"
+          ? "Team code copied to clipboard."
+          : status === "failed"
+            ? "Copy failed. Select the code above to copy it manually."
+            : ""}
+      </span>
     </div>
   );
 }

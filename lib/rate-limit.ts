@@ -1,6 +1,12 @@
 import "server-only";
 import { headers } from "next/headers";
 
+/**
+ * In-process fixed-window rate limiter. Lightweight abuse-prevention for the
+ * public action surface (registration, /status, admin login). Note: on
+ * serverless the bucket is per-instance and resets on cold start, so this is a
+ * soft speed-bump against bursts, not a hard distributed quota.
+ */
 const buckets = new Map<string, number[]>();
 
 let calls = 0;

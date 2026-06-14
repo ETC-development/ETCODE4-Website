@@ -10,6 +10,10 @@
   --color-surface: #1e2536;
   --color-surface-2: #252d42;
 
+  /* admin functional accents (kept inside the brand world) */
+  --color-danger: #e5634d;
+  --color-skyblue: #6f93c9; /* lighter blue that passes AA on dark surfaces */
+
   --font-display: var(--font-display);
   --font-body: var(--font-body);
 
@@ -142,5 +146,16 @@ html.lenis body {
     background-size: 320px;
     mix-blend-mode: soft-light;
     opacity: 0.08;
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

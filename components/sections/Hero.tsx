@@ -192,7 +192,7 @@ export default function Hero() {
             transition={{ duration: 0.9, ease: EASE, delay: 0.95 }}
             className="mb-3 max-w-sm font-body text-[0.78rem] uppercase leading-relaxed tracking-[0.22em] text-bone/75 sm:text-caption"
           >
-            ICPC-style · Teams of {EVENT.teamSize} · {EVENT.venue}
+            Teams of {EVENT.teamSize} · {EVENT.venue}
           </motion.p>
         </div>
 

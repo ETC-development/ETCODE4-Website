@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { getRegistrationStatus } from "@/lib/registration";
+import RegistrationClosed from "./RegistrationClosed";
 
 export const metadata: Metadata = {
   title: "Register",
@@ -8,7 +10,15 @@ export const metadata: Metadata = {
     "Lock your roster for ETCODE 4: create a team, join one with a code, or sign up solo as a free agent.",
 };
 
-export default function RegisterLayout({ children }: { children: React.ReactNode }) {
+// reflect the live open/closed state (toggle + deadline)
+export const dynamic = "force-dynamic";
+
+export default async function RegisterLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const status = await getRegistrationStatus();
   return (
     <div className="relative min-h-dvh">
       <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 opacity-[0.04]">
@@ -41,7 +51,7 @@ export default function RegisterLayout({ children }: { children: React.ReactNode
       </header>
 
       <main id="main" className="mx-auto w-full max-w-[80rem] px-6 py-16 sm:px-10 sm:py-24">
-        {children}
+        {status.open ? children : <RegistrationClosed status={status} />}
       </main>
     </div>
   );

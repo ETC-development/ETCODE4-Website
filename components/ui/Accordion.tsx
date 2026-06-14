@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { cn } from "@/lib/utils";
 
@@ -13,17 +13,22 @@ interface AccordionProps {
 export default function Accordion({ items }: AccordionProps) {
   const reduced = useReducedMotion();
   const [open, setOpen] = useState<number | null>(0);
+  const baseId = useId();
 
   return (
     <div className="divide-y divide-chalk/12 border-y border-chalk/12">
       {items.map((item, i) => {
         const isOpen = open === i;
+        const btnId = `${baseId}-btn-${i}`;
+        const panelId = `${baseId}-panel-${i}`;
         return (
           <div key={item.q}>
             <h3>
               <button
                 type="button"
+                id={btnId}
                 aria-expanded={isOpen}
+                aria-controls={panelId}
                 onClick={() => setOpen(isOpen ? null : i)}
                 className="group flex w-full items-center justify-between gap-6 py-6 text-left"
               >
@@ -53,6 +58,9 @@ export default function Accordion({ items }: AccordionProps) {
             <AnimatePresence initial={false}>
               {isOpen && (
                 <motion.div
+                  id={panelId}
+                  role="region"
+                  aria-labelledby={btnId}
                   initial={reduced ? { height: "auto" } : { height: 0, opacity: 0 }}
                   animate={{ height: "auto", opacity: 1 }}
                   exit={reduced ? { height: "auto", opacity: 0 } : { height: 0, opacity: 0 }}

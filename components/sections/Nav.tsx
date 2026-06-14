@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import Button from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
@@ -22,6 +22,8 @@ export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState<string>("");
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -54,6 +56,42 @@ export default function Nav() {
     document.documentElement.style.overflow = open ? "hidden" : "";
     return () => {
       document.documentElement.style.overflow = "";
+    };
+  }, [open]);
+
+  // Modal a11y: trap Tab inside the overlay, close on Escape, and restore focus
+  // to the toggle on close so keyboard/SR users aren't stranded behind the menu.
+  useEffect(() => {
+    if (!open) return;
+    const overlay = overlayRef.current;
+    const toggle = toggleRef.current;
+    const focusables = overlay?.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled])',
+    );
+    focusables?.[0]?.focus();
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+        return;
+      }
+      if (e.key === "Tab" && focusables && focusables.length) {
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      toggle?.focus();
     };
   }, [open]);
 
@@ -118,6 +156,7 @@ export default function Nav() {
           </div>
 
           <button
+            ref={toggleRef}
             type="button"
             onClick={() => setOpen((v) => !v)}
             aria-label={open ? "Close menu" : "Open menu"}
@@ -143,6 +182,10 @@ export default function Nav() {
       <AnimatePresence>
         {open && (
           <motion.div
+            ref={overlayRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Site menu"
             initial={{ opacity: 0, clipPath: "inset(0 0 100% 0)" }}
             animate={{ opacity: 1, clipPath: "inset(0 0 0% 0)" }}
             exit={{ opacity: 0, clipPath: "inset(0 0 100% 0)" }}

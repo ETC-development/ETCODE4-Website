@@ -30,14 +30,27 @@ export default function ShotClock({ targetISO, className, label }: ShotClockProp
   const value = (key: (typeof UNITS)[number]["key"]) =>
     t ? pad2(t[key]) : "--";
 
+  // Spoken summary for assistive tech — the digit grid is aria-hidden, so screen
+  // readers get this single readable string instead of four unlabeled numbers.
+  const summary = t
+    ? t.done
+      ? `${label ?? "Countdown"}: the countdown is complete.`
+      : `${label ?? "Countdown"}: ${t.days} days, ${t.hours} hours, ${t.minutes} minutes remaining.`
+    : (label ?? "Countdown loading");
+
   return (
-    <div className={cn("inline-flex flex-col gap-2", className)} role="timer" aria-live="off">
+    <div
+      className={cn("inline-flex flex-col gap-2", className)}
+      role="timer"
+      aria-label={summary}
+      aria-live="off"
+    >
       {label && (
-        <span className="font-body text-caption uppercase tracking-[0.3em] text-chalk/55">
+        <span aria-hidden className="font-body text-caption uppercase tracking-[0.3em] text-chalk/55">
           {label}
         </span>
       )}
-      <div className="flex items-end gap-3 sm:gap-4" aria-hidden={!t}>
+      <div className="flex items-end gap-3 sm:gap-4" aria-hidden>
         {UNITS.map((u, i) => (
           <div key={u.key} className="flex items-end gap-3 sm:gap-4">
             <div className="flex flex-col items-center">
@@ -57,7 +70,7 @@ export default function ShotClock({ targetISO, className, label }: ShotClockProp
         ))}
       </div>
       {t?.done && (
-        <span className="font-body text-caption uppercase tracking-[0.2em] text-orange">
+        <span role="status" className="font-body text-caption uppercase tracking-[0.2em] text-orange">
           The buzzer sounded. It&apos;s game time.
         </span>
       )}

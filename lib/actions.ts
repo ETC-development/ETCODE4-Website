@@ -11,6 +11,8 @@ import {
 } from "@/lib/schema";
 import { genTeamCode, normalizeTeamCode } from "@/lib/utils";
 import { hit, clientKey } from "@/lib/rate-limit";
+import { EVENT } from "@/lib/content";
+import { getRegistrationStatus } from "@/lib/registration";
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
 
@@ -19,6 +21,8 @@ const NOT_CONFIGURED =
   "Registration isn't live yet, the organizers are setting up the roster. Check back soon.";
 const DUP_EMAIL = "That email is already on the roster. Each player registers once.";
 const TOO_MANY = "Too many attempts. Technical Time-Out: Take a breather and try again in a minute.";
+const CLOSED =
+  "Registration is closed for now. Watch ETC's socials for the next tip-off.";
 
 function isBot(values: unknown): boolean {
   const v = (values ?? {}) as Record<string, unknown>;
@@ -55,6 +59,8 @@ export async function createTeam(values: unknown): Promise<ActionResult> {
   } catch {
     return { ok: false, error: NOT_CONFIGURED };
   }
+
+  if (!(await getRegistrationStatus()).open) return { ok: false, error: CLOSED };
 
   let code = "";
   let teamId = "";
@@ -141,6 +147,8 @@ export async function joinTeam(values: unknown): Promise<ActionResult> {
     return { ok: false, error: NOT_CONFIGURED };
   }
 
+  if (!(await getRegistrationStatus()).open) return { ok: false, error: CLOSED };
+
   const { data, error } = await db.rpc("join_team", {
     p_code: normalizeTeamCode(team_code),
     p: participantRow(participant),
@@ -181,6 +189,8 @@ export async function registerSolo(values: unknown): Promise<ActionResult> {
     return { ok: false, error: NOT_CONFIGURED };
   }
 
+  if (!(await getRegistrationStatus()).open) return { ok: false, error: CLOSED };
+
   const { error } = await db
     .from("participants")
     .insert({
@@ -196,4 +206,96 @@ export async function registerSolo(values: unknown): Promise<ActionResult> {
   }
 
   redirect("/register/success?role=solo");
+}
+
+// ---------------------------------------------------------------------------
+// Public team-status lookup (§8). No auth. Rate-limited. Keyed by team_code,
+// returns ONLY that team's own minimal payload — never an open table read.
+// QR tokens are included only for accepted teams (and never revoked ones); no
+// emails/phones/internal data are exposed.
+// ---------------------------------------------------------------------------
+
+export type StatusMember = {
+  name: string;
+  role: string;
+  institution: string | null;
+  qr_token: string | null; // present only when accepted
+};
+
+export type TeamStatusResult =
+  | {
+      ok: true;
+      team: { code: string; name: string; status: string };
+      members: StatusMember[];
+      logistics: { dates: string; venue: string } | null;
+    }
+  | { ok: false; error: string };
+
+function eventDateRange(): string {
+  const tz = "Africa/Algiers";
+  const fmt = (iso: string, opts: Intl.DateTimeFormatOptions) =>
+    new Intl.DateTimeFormat("en-GB", { ...opts, timeZone: tz }).format(new Date(iso));
+  const a = fmt(EVENT.startISO, { day: "numeric" });
+  const b = fmt(EVENT.endISO, { day: "numeric" });
+  const my = fmt(EVENT.endISO, { month: "long", year: "numeric" });
+  return a === b ? `${a} ${my}` : `${a}–${b} ${my}`;
+}
+
+const ROLE_RANK: Record<string, number> = { leader: 0, member: 1, solo: 2 };
+
+export async function getTeamStatus(codeRaw: string): Promise<TeamStatusResult> {
+  if (!hit(await clientKey("status"), 30, 60_000))
+    return { ok: false, error: TOO_MANY };
+
+  const code = normalizeTeamCode(codeRaw);
+  if (!TEAM_CODE_RE.test(code))
+    return { ok: false, error: "Team codes look like ET4-7KQ2X." };
+
+  let db;
+  try {
+    db = supabaseServer();
+  } catch {
+    return { ok: false, error: NOT_CONFIGURED };
+  }
+
+  const { data: team } = await db
+    .from("teams")
+    .select("id, team_code, name, assigned_name, status")
+    .eq("team_code", code)
+    .maybeSingle();
+  if (!team)
+    return {
+      ok: false,
+      error: "That team code isn't on the roster. Check it with your leader.",
+    };
+
+  const accepted = team.status === "accepted";
+
+  const { data: rows } = await db
+    .from("participants")
+    .select("full_name, role, institution, qr_token, qr_revoked_at")
+    .eq("team_id", team.id);
+
+  const members: StatusMember[] = (rows ?? [])
+    .map((m) => ({
+      name: m.full_name as string,
+      role: m.role as string,
+      institution: (m.institution as string) ?? null,
+      qr_token:
+        accepted && !m.qr_revoked_at ? (m.qr_token as string) : null,
+    }))
+    .sort((a, b) => (ROLE_RANK[a.role] ?? 9) - (ROLE_RANK[b.role] ?? 9));
+
+  return {
+    ok: true,
+    team: {
+      code: team.team_code,
+      name: team.assigned_name || team.name,
+      status: team.status,
+    },
+    members,
+    logistics: accepted
+      ? { dates: eventDateRange(), venue: EVENT.venue }
+      : null,
+  };
 }

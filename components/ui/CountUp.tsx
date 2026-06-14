@@ -16,7 +16,7 @@ export default function CountUp({ value, duration = 1.4 }: { value: string; dura
 
   useEffect(() => {
     if (target === null || reduced || !inView) return;
-    setN(0);
+    // first rAF frame (p≈0) already sets n to 0 — no synchronous reset needed
     let raf = 0;
     let start = 0;
     const tick = (t: number) => {

@@ -5,7 +5,7 @@ export const EVENT = {
   startISO: "2026-06-21T15:30:00+01:00",
   endISO: "2026-06-22T18:15:00+01:00",
   venue: "ENSIA School, Sidi Abdellah, Algiers",
-  registrationDeadlineISO: "2026-04-11T23:59:00+01:00",
+  registrationDeadlineISO: "2026-06-19T15:00:00+01:00",
   teamSize: 3,
   contactEmail: "tech-community@ensia.edu.dz",
   socials: {
@@ -17,7 +17,7 @@ export const EVENT = {
 } as const;
 
 export const ABOUT =
-  "ETCODE 4 is the fourth tip-off of ENSIA Tech Community's flagship competitive programming contest, ICPC-style, teams of three, one clock. Algorithms are the playbook; the only currency on the floor is a correct submission before the buzzer. Bring three minds, read the defense, and run the fastest offense in the league.";
+  "ETCODE 4 is the fourth tip-off of ENSIA Tech Community's flagship competitive programming contest, teams of three, one clock. Algorithms are the playbook; the only currency on the floor is a correct submission before the buzzer. Bring three minds, read the defense, and run the fastest offense in the league.";
 
 export const STATS: { value: string; label: string }[] = [
   { value: "4th", label: "Edition" },

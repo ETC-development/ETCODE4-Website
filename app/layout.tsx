@@ -1,15 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import { machine, montserrat } from "./fonts";
 import "./globals.css";
-import SmoothScroll from "@/components/ui/SmoothScroll";
-import Cursor from "@/components/ui/Cursor";
-import GrainOverlay from "@/components/ui/GrainOverlay";
-import ScrollProgress from "@/components/ui/ScrollProgress";
 import { EVENT } from "@/lib/content";
 
 const title = `${EVENT.name} · ${EVENT.organizer}`;
 const description =
-  "An ICPC-style competitive programming contest by ENSIA Tech Community. Teams of three. One court. No timeouts.";
+  "Annual competitive programming contest by ENSIA Tech Community. Teams of three. One court. No timeouts.";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://etcode4.vercel.app"),
@@ -21,6 +17,9 @@ export const metadata: Metadata = {
   applicationName: EVENT.name,
   keywords: [
     "ETCODE 4",
+    "ENSIA",
+    "ETCODE",
+    "ETC",
     "ENSIA Tech Community",
     "competitive programming",
     "ICPC",
@@ -60,17 +59,8 @@ export default function RootLayout({
       className={`${machine.variable} ${montserrat.variable}`}
       suppressHydrationWarning
     >
-      <body className="min-h-dvh bg-court text-bone">
-        <a
-          href="#main"
-          className="sr-only focus-visible:not-sr-only focus-visible:fixed focus-visible:left-4 focus-visible:top-4 focus-visible:z-[100] focus-visible:rounded-full focus-visible:bg-orange focus-visible:px-5 focus-visible:py-2.5 focus-visible:font-body focus-visible:text-caption focus-visible:font-semibold focus-visible:uppercase focus-visible:tracking-[0.16em] focus-visible:text-court"
-        >
-          Skip to content
-        </a>
-        <ScrollProgress />
-        <SmoothScroll>{children}</SmoothScroll>
-        <Cursor />
-        <GrainOverlay />
+      <body className="min-h-dvh bg-court text-bone" suppressHydrationWarning>
+        {children}
       </body>
     </html>
   );
