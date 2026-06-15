@@ -6,10 +6,26 @@
  * until an official name is assigned.
  */
 export const TEAM_NAMES: readonly string[] = [
-  // "Court Vision",
-  // "Fast Break",
-  // "Full Court Press",
-  // …add the 20 official ETCODE 4 team names here
+  "Amnay Warriors",
+  "Amzura Storms",
+  "Bridge Wardens",
+  "Casbah Sentinels",
+  "Fennec Runners",
+  "Genoua Giants",
+  "Gouraya Falcons",
+  "Honda Phalanx",
+  "Ighil Titans",
+  "Kalaa Fortress",
+  "Numedia Kings",
+  "Oursanis Guardians",
+  "Ghumel Vertigo",
+  "Sahara Legion",
+  "Soummam Commanders",
+  "Tafna Strategists",
+  "Thagaste Scholars",
+  "Tifinagh Legends",
+  "Touareg Nomads",
+  "Zaccar Apex",
 ];
 
 /** Whether a candidate name belongs to the official pool (exact match). */
