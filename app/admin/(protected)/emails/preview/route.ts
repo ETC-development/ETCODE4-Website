@@ -22,7 +22,9 @@ const TEMPLATES: EmailTemplate[] = [
 ];
 
 const SAMPLE: TeamEmailData = {
-  teamName: "Court Vision",
+  teamName: "Gouraya Falcons",
+  registeredName: "Court Vision", // the team's self-chosen registration name
+  assignedName: "Gouraya Falcons", // official codename (shows the "as …" clause)
   code: "ET4-7KQ2X",
   leaderName: "Amine Benali",
   note: "Loved your motivation. Bring that energy to the court.",
@@ -67,6 +69,8 @@ export async function GET(request: Request) {
       };
       data = {
         teamName: t.assigned_name || t.name,
+        registeredName: t.name,
+        assignedName: t.assigned_name,
         code: t.team_code,
         leaderName:
           t.members.find((m) => m.role === "leader")?.full_name ??

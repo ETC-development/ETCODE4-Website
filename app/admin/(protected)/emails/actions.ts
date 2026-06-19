@@ -60,6 +60,8 @@ function emailData(team: TeamForEmail) {
   return {
     // official codename when assigned, else the leader's registration name
     teamName: team.assigned_name || team.name,
+    registeredName: team.name, // self-chosen registration name
+    assignedName: team.assigned_name, // official codename (null until assigned)
     code: team.team_code,
     leaderName:
       team.members.find((m) => m.role === "leader")?.full_name ??

@@ -10,6 +10,7 @@ import {
 } from "@/lib/admin/teams";
 import { teamNameOptions } from "@/lib/team-names";
 import { fmtDateTime } from "@/lib/admin/format";
+import { safeExternalUrl } from "@/lib/utils";
 import StatusChip from "@/components/admin/StatusChip";
 import type { RosterMember } from "@/lib/admin/types";
 import TeamControls from "./TeamControls";
@@ -118,7 +119,7 @@ export default async function TeamDetailPage({
 
                 <div className="mt-2 flex flex-wrap gap-3 text-caption">
                   {HANDLES.map(({ key, label }) => {
-                    const url = m[key] as string | null;
+                    const url = safeExternalUrl(m[key] as string | null);
                     return url ? (
                       <a
                         key={key}

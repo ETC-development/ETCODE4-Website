@@ -2,7 +2,8 @@ import { Button, Column, Img, Row, Section, Text } from "@react-email/components
 import { C, Eyebrow, Layout, P, Title } from "./Layout";
 
 export type AcceptanceProps = {
-  teamName: string;
+  registeredName: string; // the team's self-chosen registration name
+  assignedName?: string | null; // official codename, null when unassigned
   code: string;
   leaderName: string;
   note?: string | null;
@@ -15,7 +16,8 @@ export type AcceptanceProps = {
 };
 
 export default function Acceptance({
-  teamName,
+  registeredName,
+  assignedName,
   code,
   leaderName,
   note,
@@ -32,7 +34,7 @@ export default function Acceptance({
 
   return (
     <Layout
-      preview={`${teamName} is in ETCODE 4`}
+      preview={`${assignedName || registeredName} is in ETCODE 4`}
       contactEmail={contactEmail}
       logoUrl={logoUrl}
     >
@@ -41,9 +43,16 @@ export default function Acceptance({
 
       <P>Hi {leaderName.split(" ")[0] || "there"},</P>
       <P>
-        Team <strong style={{ color: C.bone }}>{teamName}</strong> ({code}) is
-        <strong style={{ color: C.orange }}> accepted</strong> to ETCODE 4. Three
-        coders, one court. Time to lock your plays and show up ready to ball.
+        Team <strong style={{ color: C.bone }}>{registeredName}</strong> ({code}){" "}
+        is<strong style={{ color: C.orange }}> accepted</strong> to ETCODE 4
+        {assignedName ? (
+          <>
+            {" "}
+            as <strong style={{ color: C.orange }}>{assignedName}</strong>
+          </>
+        ) : null}
+        . Three coders, one court. Time to lock your plays and show up ready to
+        ball.
       </P>
 
       {note ? (

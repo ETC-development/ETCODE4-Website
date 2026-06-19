@@ -178,6 +178,11 @@ alter table participants add column if not exists qr_token     text unique
 alter table participants add column if not exists qr_issued_at timestamptz default now();
 alter table participants add column if not exists qr_revoked_at timestamptz;
 
+-- solo rejection (mirrors migration 0009): a rejected free-agent drops out of
+-- the draft pool but the record is kept. Only meaningful for solos (team_id null).
+alter table participants add column if not exists rejected_at timestamptz;
+alter table participants add column if not exists rejected_by uuid references admins(id);
+
 create table if not exists checkin_sessions (
   id          uuid primary key default gen_random_uuid(),
   label       text not null,

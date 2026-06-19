@@ -132,7 +132,7 @@ export default function TeamControls({
 
         <label className="mt-3 block">
           <span className="text-caption text-bone/45">
-            Personal note (included in the decision email)
+            Personal note (added to the acceptance email only)
           </span>
           <textarea
             value={note}

@@ -24,9 +24,12 @@ export type DashboardData = {
   institutions: Cat[];
   studyYears: Cat[];
   tshirts: Cat[];
-  needsAttention: {
-    flagged: { code: string; name: string; status: TeamStatus }[];
-    partial: { code: string; name: string; members: number }[];
+  // participants on accepted teams, split ENSIA vs the rest + per-institution
+  acceptedParticipants: {
+    total: number;
+    ensia: number;
+    nonEnsia: number;
+    byInstitution: Cat[];
   };
 };
 
@@ -57,7 +60,9 @@ export async function getDashboardData(): Promise<DashboardData> {
         .select("id", { count: "exact", head: true })
         .is("team_id", null),
       sb.from("settings").select("max_teams").eq("id", 1).maybeSingle(),
-      sb.from("participants").select("institution, study_year, tshirt_size"),
+      sb
+        .from("participants")
+        .select("institution, study_year, tshirt_size, team:teams(status)"),
     ]);
 
   const rows = (teams ?? []) as {
@@ -107,15 +112,31 @@ export async function getDashboardData(): Promise<DashboardData> {
     institution: string | null;
     study_year: string | null;
     tshirt_size: string | null;
+    team: { status: string } | { status: string }[] | null;
   }[];
   const instMap = new Map<string, number>();
   const yearMap = new Map<string, number>();
   const shirtMap = new Map<string, number>();
+  // accepted = participant whose team is accepted (solos are never "accepted")
+  const acceptedInstMap = new Map<string, number>();
+  let acceptedTotal = 0;
+  let acceptedEnsia = 0;
   for (const p of persons) {
     if (p.institution) instMap.set(p.institution, (instMap.get(p.institution) ?? 0) + 1);
     if (p.study_year) yearMap.set(p.study_year, (yearMap.get(p.study_year) ?? 0) + 1);
     if (p.tshirt_size) shirtMap.set(p.tshirt_size, (shirtMap.get(p.tshirt_size) ?? 0) + 1);
+
+    const team = Array.isArray(p.team) ? p.team[0] : p.team;
+    if (team?.status === "accepted") {
+      acceptedTotal++;
+      if (p.institution === "ENSIA") acceptedEnsia++;
+      const inst = p.institution ?? "Unknown";
+      acceptedInstMap.set(inst, (acceptedInstMap.get(inst) ?? 0) + 1);
+    }
   }
+  const acceptedByInstitution: Cat[] = [...acceptedInstMap.entries()]
+    .map(([name, value]) => ({ name, value }))
+    .sort((a, b) => b.value - a.value);
   const institutions: Cat[] = [...instMap.entries()]
     .map(([name, value]) => ({ name, value }))
     .sort((a, b) => b.value - a.value)
@@ -128,20 +149,6 @@ export async function getDashboardData(): Promise<DashboardData> {
     name: s,
     value: shirtMap.get(s) ?? 0,
   })).filter((c) => c.value > 0);
-
-  // needs-attention rail: flagged teams + still-pending partial rosters
-  const flaggedTeams = rows
-    .filter((t) => t.flagged)
-    .slice(0, 12)
-    .map((t) => ({ code: t.team_code, name: t.name, status: t.status }));
-  const partialTeams = rows
-    .filter((t) => t.status === "pending" && (t.members?.length ?? 0) < 3)
-    .slice(0, 12)
-    .map((t) => ({
-      code: t.team_code,
-      name: t.name,
-      members: t.members?.length ?? 0,
-    }));
 
   const maxTeams = (settings?.max_teams as number | null) ?? null;
   const solos = solosTotal.count ?? 0;
@@ -167,6 +174,11 @@ export async function getDashboardData(): Promise<DashboardData> {
     institutions,
     studyYears,
     tshirts,
-    needsAttention: { flagged: flaggedTeams, partial: partialTeams },
+    acceptedParticipants: {
+      total: acceptedTotal,
+      ensia: acceptedEnsia,
+      nonEnsia: acceptedTotal - acceptedEnsia,
+      byInstitution: acceptedByInstitution,
+    },
   };
 }

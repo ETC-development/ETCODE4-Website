@@ -48,6 +48,21 @@ export function countdownTo(targetISO: string, fromMs: number): Countdown {
   return { days, hours, minutes, seconds, done: total <= 0, total };
 }
 
+/**
+ * Returns the URL only if it's a safe http(s) link, else null. Guards against
+ * `javascript:`/`data:` URLs in user-supplied handles (LeetCode/HackerRank/
+ * GitHub) being rendered into an `href` — a stored-XSS vector in the admin UI.
+ */
+export function safeExternalUrl(url: string | null | undefined): string | null {
+  if (!url) return null;
+  try {
+    const { protocol } = new URL(url);
+    return protocol === "https:" || protocol === "http:" ? url : null;
+  } catch {
+    return null;
+  }
+}
+
 export function formatEventDate(iso: string, locale = "en-GB"): string {
   return new Intl.DateTimeFormat(locale, {
     weekday: "long",

@@ -70,7 +70,7 @@ export const AGENDA: {
 }[] = [
   {
     day: "Game Day",
-    date: "Sat · 21 Jun",
+    date: "Sun · 21 Jun",
     blocks: [
       { start: "14:00", end: "15:00", title: "Check-in", desc: "Teams arrive, seats assigned." },
       { start: "15:00", end: "16:30", title: "Opening Ceremony", desc: "Welcome, rules walkthrough, and the practice problem on the big screen." },
@@ -85,7 +85,7 @@ export const AGENDA: {
   },
   {
     day: "Final Day",
-    date: "Sun · 22 Jun",
+    date: "Mon · 22 Jun",
     blocks: [
       { start: "08:00", end: "09:00", title: "Breakfast Service", desc: "" },
       { start: "09:30", end: "11:30", title: "Phase 3", desc: "Hard problems." },

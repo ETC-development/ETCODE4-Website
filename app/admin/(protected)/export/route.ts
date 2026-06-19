@@ -10,7 +10,41 @@ export async function GET(request: Request) {
   if (!admin || !roleAtLeast(admin.role, "manager"))
     return new Response("Forbidden", { status: 403 });
 
-  const type = new URL(request.url).searchParams.get("type") ?? "participants";
+  const url = new URL(request.url);
+  const type = url.searchParams.get("type") ?? "participants";
+  // Optional filter: restrict the export to a set of team codes (used by the
+  // review queue's "export filtered" so the CSV matches the on-screen filters).
+  const codesParam = url.searchParams.get("codes");
+  const codeSet =
+    codesParam !== null
+      ? new Set(
+          codesParam
+            .split(",")
+            .map((c) => c.trim().toUpperCase())
+            .filter((c) => /^ET4-[A-Z0-9]{5}$/.test(c)),
+        )
+      : null;
+  // Optional team-status filter, e.g. ?status=accepted (or a comma list).
+  const statusParam = url.searchParams.get("status");
+  const statusSet = statusParam
+    ? new Set(
+        statusParam
+          .split(",")
+          .map((s) => s.trim().toLowerCase())
+          .filter(Boolean),
+      )
+    : null;
+  // Optional institution filter on participants: ?institution=ENSIA, plus
+  // &exclude=1 to invert it ("everyone NOT from ENSIA").
+  const institution = url.searchParams.get("institution")?.trim() || null;
+  const exclude = url.searchParams.get("exclude") === "1";
+
+  const suffixParts: string[] = [];
+  if (statusSet) suffixParts.push([...statusSet].join("-"));
+  if (institution)
+    suffixParts.push((exclude ? "non-" : "") + institution.replace(/\s+/g, ""));
+  if (codeSet) suffixParts.push("filtered");
+  const suffix = suffixParts.length ? `-${suffixParts.join("-")}` : "";
   const sb = await supabaseSession();
 
   let rows: (string | number | null)[][];
@@ -47,16 +81,22 @@ export async function GET(request: Request) {
         "team_code, name, status, flagged, created_at, members:participants(id)",
       )
       .order("created_at", { ascending: true });
-    filename = "etcode4-teams.csv";
+    filename = `etcode4-teams${suffix}.csv`;
     rows = [["team_code", "name", "status", "flagged", "members", "created_at"]];
-    for (const t of (data ?? []) as {
+    let teamRows = (data ?? []) as {
       team_code: string;
       name: string;
       status: string;
       flagged: boolean;
       created_at: string;
       members: { id: string }[];
-    }[]) {
+    }[];
+    teamRows = teamRows.filter((t) => {
+      if (codeSet && !codeSet.has(t.team_code)) return false;
+      if (statusSet && !statusSet.has(t.status)) return false;
+      return true;
+    });
+    for (const t of teamRows) {
       rows.push([
         t.team_code,
         t.name,
@@ -73,7 +113,7 @@ export async function GET(request: Request) {
         "full_name, email, phone, institution, study_year, role, tshirt_size, leetcode, hackerrank, github, team:teams(team_code, name, status)",
       )
       .order("created_at", { ascending: true });
-    filename = "etcode4-participants.csv";
+    filename = `etcode4-participants${suffix}.csv`;
     rows = [
       [
         "full_name",
@@ -91,7 +131,20 @@ export async function GET(request: Request) {
         "github",
       ],
     ];
-    for (const p of (data ?? []) as Record<string, unknown>[]) {
+    let partRows = (data ?? []) as Record<string, unknown>[];
+    partRows = partRows.filter((p) => {
+      const t = (Array.isArray(p.team) ? p.team[0] : p.team) as
+        | { team_code?: string; status?: string }
+        | null;
+      if (codeSet && !(t?.team_code && codeSet.has(t.team_code))) return false;
+      if (statusSet && !(t?.status && statusSet.has(t.status))) return false;
+      if (institution) {
+        const isInst = p.institution === institution;
+        if (exclude ? isInst : !isInst) return false;
+      }
+      return true;
+    });
+    for (const p of partRows) {
       const team = (Array.isArray(p.team) ? p.team[0] : p.team) as
         | { team_code?: string; name?: string; status?: string }
         | null;
@@ -115,7 +168,12 @@ export async function GET(request: Request) {
 
   // Bulk PII leaves the system here — log who exported what and how many rows
   // (header row excluded) so exfiltration is visible in the audit trail.
-  await logAudit(admin.id, "data.export", type, { rows: rows.length - 1 });
+  await logAudit(admin.id, "data.export", type, {
+    rows: rows.length - 1,
+    status: statusParam ?? null,
+    institution: institution ? (exclude ? `not:${institution}` : institution) : null,
+    codes: codeSet ? codeSet.size : null,
+  });
 
   return new Response("﻿" + csv(rows), {
     headers: {

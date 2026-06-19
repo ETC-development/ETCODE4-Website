@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Search, Flag, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { adminButton } from "@/components/admin/ui";
 import StatusChip from "@/components/admin/StatusChip";
 import { fmtDateTime } from "@/lib/admin/format";
 import {
@@ -87,6 +88,12 @@ export default function ReviewQueue({ teams }: { teams: TeamRecord[] }) {
 
   const allVisibleSelected =
     filtered.length > 0 && filtered.every((t) => selected.has(t.team_code));
+
+  // "export filtered": only the teams currently matching the filters above
+  const filteredCodes = filtered.map((t) => t.team_code).join(",");
+  const filteredPartCount = filtered.reduce((n, t) => n + t.members.length, 0);
+  const exportUrl = (kind: "participants" | "teams") =>
+    `/admin/export?type=${kind}&codes=${encodeURIComponent(filteredCodes)}`;
 
   function toggleStatus(s: TeamStatus) {
     setStatusOn((prev) => {
@@ -211,6 +218,30 @@ export default function ReviewQueue({ teams }: { teams: TeamRecord[] }) {
         >
           Submitted {sortDir === "desc" ? "↓ newest" : "↑ oldest"}
         </button>
+
+        {/* export exactly what these filters show */}
+        <div className="ml-auto flex flex-wrap items-center gap-2">
+          <span className="text-caption uppercase tracking-wide text-bone/45">
+            Export filtered
+          </span>
+          {filtered.length > 0 ? (
+            <>
+              <a
+                href={exportUrl("participants")}
+                className={adminButton("secondary")}
+              >
+                ↓ Participants ({filteredPartCount})
+              </a>
+              <a href={exportUrl("teams")} className={adminButton("secondary")}>
+                ↓ Teams ({filtered.length})
+              </a>
+            </>
+          ) : (
+            <span className={cn(adminButton("secondary"), "pointer-events-none opacity-40")}>
+              ↓ No matches
+            </span>
+          )}
+        </div>
       </div>
 
       {error ? (

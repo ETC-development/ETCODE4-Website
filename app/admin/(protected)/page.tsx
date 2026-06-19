@@ -1,9 +1,7 @@
-import Link from "next/link";
 import { requireRole } from "@/lib/auth";
 import { getDashboardData } from "@/lib/admin/dashboard";
 import CountUp from "@/components/ui/CountUp";
-import StatusChip from "@/components/admin/StatusChip";
-import { Card, PageHeader } from "@/components/admin/ui";
+import { Card, PageHeader, adminButton } from "@/components/admin/ui";
 import RegistrationsChart from "@/components/admin/charts/RegistrationsChart";
 import StatusFunnel from "@/components/admin/charts/StatusFunnel";
 import CategoryChart from "@/components/admin/charts/CategoryChart";
@@ -43,10 +41,8 @@ export default async function DashboardPage() {
     institutions,
     studyYears,
     tshirts,
-    needsAttention,
+    acceptedParticipants,
   } = await getDashboardData();
-  const hasAttention =
-    needsAttention.flagged.length > 0 || needsAttention.partial.length > 0;
 
   return (
     <section>
@@ -67,59 +63,39 @@ export default async function DashboardPage() {
         <Kpi label="Solo agents" value={String(kpis.soloFreeAgents)} />
       </div>
 
-      {/* needs attention */}
-      {hasAttention ? (
-        <div className="mt-6 grid gap-5 md:grid-cols-2">
-          <Card title={`Flagged teams (${needsAttention.flagged.length})`}>
-            {needsAttention.flagged.length === 0 ? (
-              <p className="text-sm text-bone/55">None flagged.</p>
-            ) : (
-              <ul className="space-y-1.5">
-                {needsAttention.flagged.map((t) => (
-                  <li key={t.code}>
-                    <Link
-                      href={`/admin/teams/${t.code}`}
-                      className="flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 hover:bg-surface-2"
-                    >
-                      <span className="min-w-0 truncate text-bone">
-                        {t.name}{" "}
-                        <span className="text-caption text-bone/55">{t.code}</span>
-                      </span>
-                      <StatusChip status={t.status} />
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </Card>
-          <Card title={`Partial rosters · pending (${needsAttention.partial.length})`}>
-            {needsAttention.partial.length === 0 ? (
-              <p className="text-sm text-bone/55">All pending teams are full.</p>
-            ) : (
-              <ul className="space-y-1.5">
-                {needsAttention.partial.map((t) => (
-                  <li key={t.code}>
-                    <Link
-                      href={`/admin/teams/${t.code}`}
-                      className="flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 hover:bg-surface-2"
-                    >
-                      <span className="min-w-0 truncate text-bone">
-                        {t.name}{" "}
-                        <span className="text-caption text-bone/55">{t.code}</span>
-                      </span>
-                      <span className="text-caption font-medium text-orange">
-                        {t.members}/3
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </Card>
-        </div>
-      ) : null}
+      {/* export accepted participants, split by ENSIA membership */}
+      <Card title="Export accepted participants" className="mt-6">
+        <p className="text-sm text-bone/55">
+          Every accepted participant with full info and their team. Split by
+          whether the person is from ENSIA.
+        </p>
+        {acceptedParticipants.total === 0 ? (
+          <p className="mt-3 text-sm text-bone/45">No accepted participants yet.</p>
+        ) : (
+          <div className="mt-3 flex flex-wrap gap-2">
+            <a
+              href="/admin/export?type=participants&status=accepted&institution=ENSIA"
+              className={adminButton("primary")}
+            >
+              ↓ ENSIA ({acceptedParticipants.ensia})
+            </a>
+            <a
+              href="/admin/export?type=participants&status=accepted&institution=ENSIA&exclude=1"
+              className={adminButton("secondary")}
+            >
+              ↓ Outside ENSIA ({acceptedParticipants.nonEnsia})
+            </a>
+            <a
+              href="/admin/export?type=participants&status=accepted"
+              className={adminButton("secondary")}
+            >
+              ↓ All accepted ({acceptedParticipants.total})
+            </a>
+          </div>
+        )}
+      </Card>
 
-      {/* charts */}
+      {/* primary charts */}
       <div className="mt-6 grid gap-5 lg:grid-cols-2">
         <Card title="Registrations over time">
           <RegistrationsChart data={registrations} />
@@ -145,9 +121,21 @@ export default async function DashboardPage() {
         </span>
       </div>
 
-      {/* secondary charts */}
+      {/* breakdown charts */}
       <div className="mt-6 grid gap-5 lg:grid-cols-2">
-        <Card title="Institutions (top 8)">
+        <Card title="Accepted by institution">
+          {acceptedParticipants.byInstitution.length === 0 ? (
+            <p className="text-sm text-bone/55">No accepted participants yet.</p>
+          ) : (
+            <CategoryChart
+              data={acceptedParticipants.byInstitution}
+              orientation="horizontal"
+              color="var(--orange)"
+              yWidth={96}
+            />
+          )}
+        </Card>
+        <Card title="All applicants by institution">
           <CategoryChart
             data={institutions}
             orientation="horizontal"

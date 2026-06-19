@@ -25,7 +25,12 @@ const required = (label: string) => `${label} is required.`;
 
 const optionalUrl = z
   .union([z.literal(""), z.url("Enter a full URL (https://…).")])
-  .optional();
+  .optional()
+  // z.url() accepts any scheme (incl. javascript:/data:); require http(s) so a
+  // handle can never become an XSS payload when rendered into an href.
+  .refine((v) => !v || /^https?:\/\//i.test(v), {
+    message: "Enter a full http(s) URL (https://…).",
+  });
 
 export const participantBase = z.object({
   full_name: z.string().trim().min(2, required("Full name")).max(80, "That name is too long."),

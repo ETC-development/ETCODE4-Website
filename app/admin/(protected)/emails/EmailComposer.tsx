@@ -26,7 +26,7 @@ const LABEL: Record<Template, string> = {
 // Only these templates render the editable personal message.
 const HAS_NOTE: Record<Template, boolean> = {
   acceptance: true,
-  rejection: true,
+  rejection: false,
   reminder: false,
   checkin_qr: false,
 };

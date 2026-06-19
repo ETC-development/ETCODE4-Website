@@ -15,7 +15,9 @@ export type EmailTemplate =
   | "checkin_qr";
 
 export type TeamEmailData = {
-  teamName: string;
+  teamName: string; // display name (assigned codename, else registration name)
+  registeredName?: string; // the team's self-chosen registration name
+  assignedName?: string | null; // official codename, null until assigned
   code: string;
   leaderName: string;
   note?: string | null;
@@ -128,9 +130,8 @@ export function defaultNote(
   template: EmailTemplate,
   note?: string | null,
 ): string {
-  return template === "reminder" || template === "checkin_qr"
-    ? ""
-    : (note ?? "");
+  // Only the acceptance email carries a personal note; rejection no longer does.
+  return template === "acceptance" ? (note ?? "") : "";
 }
 
 export function defaultSubject(template: EmailTemplate): string {
@@ -157,7 +158,8 @@ export async function renderEmail(
     attachments = qrAttachments;
     html = await render(
       <Acceptance
-        teamName={data.teamName}
+        registeredName={data.registeredName ?? data.teamName}
+        assignedName={data.assignedName ?? null}
         code={data.code}
         leaderName={data.leaderName}
         note={note}
@@ -174,7 +176,6 @@ export async function renderEmail(
       <Rejection
         teamName={data.teamName}
         leaderName={data.leaderName}
-        note={note}
         logoUrl={logoUrl()}
         contactEmail={EVENT.contactEmail}
       />,
