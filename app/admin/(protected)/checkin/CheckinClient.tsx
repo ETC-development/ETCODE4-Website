@@ -334,7 +334,7 @@ function ManualSearch({
   return (
     <div className="mt-5">
       <h2 className="font-body text-caption font-semibold uppercase tracking-[0.16em] text-bone/50">
-        Find by team (lost QR)
+        Find by name or team (lost QR)
       </h2>
       <div className="relative mt-2">
         <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-bone/55" />
@@ -342,7 +342,7 @@ function ManualSearch({
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           disabled={disabled}
-          placeholder="Team code or name…"
+          placeholder="Participant name, team code or name…"
           className="w-full rounded-lg border border-bone/15 bg-surface py-2.5 pl-9 pr-3 text-sm outline-none placeholder:text-bone/35 focus-visible:border-orange disabled:opacity-50"
         />
       </div>

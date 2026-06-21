@@ -228,10 +228,32 @@ export async function searchRoster(query: string): Promise<RosterSearchTeam[]> {
   const session = await getActiveSession(db);
 
   const pattern = `%${q.replace(/[%_]/g, "")}%`;
+
+  // Match teams by code/name, and also teams that have a member whose name
+  // matches — so you can find a participant directly (e.g. a lost QR).
+  const [{ data: byTeam }, { data: byMember }] = await Promise.all([
+    db
+      .from("teams")
+      .select("id")
+      .or(`team_code.ilike.${pattern},name.ilike.${pattern}`)
+      .limit(12),
+    db
+      .from("participants")
+      .select("team_id")
+      .ilike("full_name", pattern)
+      .not("team_id", "is", null)
+      .limit(24),
+  ]);
+
+  const teamIds = new Set<string>();
+  for (const t of byTeam ?? []) teamIds.add(t.id as string);
+  for (const p of byMember ?? []) teamIds.add(p.team_id as string);
+  if (teamIds.size === 0) return [];
+
   const { data: teams } = await db
     .from("teams")
     .select("id, team_code, name, status, members:participants(id, full_name, role)")
-    .or(`team_code.ilike.${pattern},name.ilike.${pattern}`)
+    .in("id", [...teamIds])
     .limit(12);
 
   const checkedSet = new Set<string>();

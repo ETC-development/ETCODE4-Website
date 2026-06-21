@@ -12,7 +12,7 @@ import { teamNameOptions } from "@/lib/team-names";
 import { fmtDateTime } from "@/lib/admin/format";
 import StatusChip from "@/components/admin/StatusChip";
 import TeamControls from "./TeamControls";
-import MemberEditor from "./MemberEditor";
+import MemberEditor from "../MemberEditor";
 import EmailComposer from "../../emails/EmailComposer";
 
 export const dynamic = "force-dynamic";

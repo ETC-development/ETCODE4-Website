@@ -21,7 +21,7 @@ export type ActionResult = { ok: true } | { ok: false; error: string };
 const FORBIDDEN = "You don't have permission to do that.";
 const GENERIC = "Something went wrong. Try again.";
 
-async function guard(role: "hr_checkin" | "super_admin") {
+async function guard(role: "hr_checkin" | "manager" | "super_admin") {
   return assertRole(role);
 }
 
@@ -93,7 +93,8 @@ export async function refreshState(): Promise<CheckinState | null> {
   return getCheckinState();
 }
 
-// --- session management (super_admin) ---------------------------------------
+// --- session management ------------------------------------------------------
+// Create + activate are manager+; delete stays super_admin (cascades to check-ins).
 
 const KINDS = ["general", "meal"] as const;
 
@@ -104,7 +105,7 @@ export async function createSession(
 ): Promise<ActionResult> {
   let admin;
   try {
-    admin = await guard("super_admin");
+    admin = await guard("manager");
   } catch (e) {
     if (e instanceof ForbiddenError) return { ok: false, error: FORBIDDEN };
     throw e;
@@ -141,7 +142,7 @@ export async function createSession(
 export async function setActiveSession(idRaw: string): Promise<ActionResult> {
   let admin;
   try {
-    admin = await guard("super_admin");
+    admin = await guard("manager");
   } catch (e) {
     if (e instanceof ForbiddenError) return { ok: false, error: FORBIDDEN };
     throw e;

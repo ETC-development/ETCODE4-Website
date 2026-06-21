@@ -50,6 +50,24 @@ export async function listTeams(): Promise<TeamRecord[]> {
   }));
 }
 
+/**
+ * Accepted teams only, for the roster-management page. Same shape as
+ * listTeams (RLS-bound session client, roster sorted), newest first.
+ */
+export async function listAcceptedTeams(): Promise<TeamRecord[]> {
+  const sb = await supabaseSession();
+  const { data, error } = await sb
+    .from("teams")
+    .select(TEAM_COLS)
+    .eq("status", "accepted")
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return (data ?? []).map((t) => ({
+    ...(t as TeamRecord),
+    members: sortRoster((t as TeamRecord).members ?? []),
+  }));
+}
+
 export async function getTeamByCode(code: string): Promise<TeamRecord | null> {
   const sb = await supabaseSession();
   const { data, error } = await sb

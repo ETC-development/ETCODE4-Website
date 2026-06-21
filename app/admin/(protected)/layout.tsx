@@ -15,6 +15,7 @@ type NavItem = { href: string; label: string; min: AdminRole };
 const NAV: NavItem[] = [
   { href: "/admin", label: "Dashboard", min: "manager" },
   { href: "/admin/teams", label: "Review", min: "manager" },
+  { href: "/admin/accepted", label: "Accepted", min: "super_admin" },
   { href: "/admin/draft", label: "Draft", min: "manager" },
   { href: "/admin/checkin", label: "Check-in", min: "hr_checkin" },
   { href: "/admin/board", label: "Live board", min: "hr_checkin" },

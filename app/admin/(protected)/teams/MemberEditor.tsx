@@ -7,7 +7,7 @@ import { useToast } from "@/components/admin/Toast";
 import { safeExternalUrl } from "@/lib/utils";
 import type { RosterMember } from "@/lib/admin/types";
 import type { MemberEditFields } from "@/lib/admin/member-edit";
-import { updateMember } from "../actions";
+import { updateMember } from "./actions";
 
 const HANDLES: { key: keyof RosterMember; label: string }[] = [
   { key: "leetcode", label: "LeetCode" },

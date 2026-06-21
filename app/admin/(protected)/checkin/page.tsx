@@ -1,4 +1,4 @@
-import { requireRole } from "@/lib/auth";
+import { requireRole, roleAtLeast } from "@/lib/auth";
 import { getCheckinState, listSessions } from "@/lib/admin/checkin";
 import CheckinClient from "./CheckinClient";
 import SessionManager from "./SessionManager";
@@ -7,11 +7,12 @@ export const dynamic = "force-dynamic";
 
 export default async function CheckinPage() {
   const admin = await requireRole("hr_checkin");
-  const isSuper = admin.role === "super_admin";
+  const canManageSessions = roleAtLeast(admin.role, "manager");
+  const canDeleteSessions = admin.role === "super_admin";
 
   const [state, sessions] = await Promise.all([
     getCheckinState(),
-    isSuper ? listSessions() : Promise.resolve([]),
+    canManageSessions ? listSessions() : Promise.resolve([]),
   ]);
 
   return (
@@ -23,7 +24,9 @@ export default async function CheckinPage() {
         </p>
       </div>
 
-      {isSuper ? <SessionManager sessions={sessions} /> : null}
+      {canManageSessions ? (
+        <SessionManager sessions={sessions} canDelete={canDeleteSessions} />
+      ) : null}
 
       <CheckinClient initial={state} />
     </div>

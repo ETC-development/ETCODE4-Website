@@ -22,7 +22,7 @@ export default async function SettingsPage() {
       <PageHeader title="Settings" />
 
       <SettingsForm initial={settings} />
-      <SessionManager sessions={sessions} />
+      <SessionManager sessions={sessions} canDelete />
       <AdminManager admins={admins} selfId={admin.id} />
 
       <div className="rounded-xl border border-bone/10 bg-surface p-5">

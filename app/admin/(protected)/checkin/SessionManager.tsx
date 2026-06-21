@@ -9,8 +9,10 @@ import { createSession, deleteSession, setActiveSession } from "./actions";
 
 export default function SessionManager({
   sessions,
+  canDelete,
 }: {
   sessions: CheckinSession[];
+  canDelete: boolean;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -41,7 +43,7 @@ export default function SessionManager({
   return (
     <div className="rounded-xl border border-bone/10 bg-surface p-4">
       <h2 className="font-body text-caption font-semibold uppercase tracking-[0.16em] text-bone/55">
-        Sessions <span className="text-bone/45">(super-admin)</span>
+        Sessions <span className="text-bone/45">(managers+)</span>
       </h2>
 
       <ul className="mt-3 space-y-2">
@@ -74,7 +76,7 @@ export default function SessionManager({
                   Set active
                 </button>
               )}
-              {confirmId === s.id ? (
+              {canDelete && confirmId === s.id ? (
                 <span className="flex items-center gap-1.5">
                   <button
                     type="button"
@@ -95,7 +97,7 @@ export default function SessionManager({
                     Cancel
                   </button>
                 </span>
-              ) : (
+              ) : canDelete ? (
                 <button
                   type="button"
                   disabled={pending}
@@ -105,7 +107,7 @@ export default function SessionManager({
                 >
                   <Trash2 className="size-4" />
                 </button>
-              )}
+              ) : null}
             </span>
           </li>
         ))}
