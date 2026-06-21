@@ -10,19 +10,12 @@ import {
 } from "@/lib/admin/teams";
 import { teamNameOptions } from "@/lib/team-names";
 import { fmtDateTime } from "@/lib/admin/format";
-import { safeExternalUrl } from "@/lib/utils";
 import StatusChip from "@/components/admin/StatusChip";
-import type { RosterMember } from "@/lib/admin/types";
 import TeamControls from "./TeamControls";
+import MemberEditor from "./MemberEditor";
 import EmailComposer from "../../emails/EmailComposer";
 
 export const dynamic = "force-dynamic";
-
-const HANDLES: { key: keyof RosterMember; label: string }[] = [
-  { key: "leetcode", label: "LeetCode" },
-  { key: "hackerrank", label: "HackerRank" },
-  { key: "github", label: "GitHub" },
-];
 
 export default async function TeamDetailPage({
   params,
@@ -82,64 +75,11 @@ export default async function TeamDetailPage({
           </h2>
           <ul className="mt-3 space-y-3">
             {team.members.map((m) => (
-              <li
+              <MemberEditor
                 key={m.id}
-                className="rounded-xl border border-bone/10 bg-surface p-4"
-              >
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-medium text-bone">{m.full_name}</span>
-                  <span className="rounded-full bg-surface-2 px-2 py-0.5 text-caption uppercase tracking-wide text-bone/55">
-                    {m.role}
-                  </span>
-                </div>
-                <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-sm text-bone/70">
-                  <div className="col-span-2 sm:col-span-1">
-                    <dt className="inline text-bone/55">Email: </dt>
-                    <dd className="inline">{m.email}</dd>
-                  </div>
-                  <div className="col-span-2 sm:col-span-1">
-                    <dt className="inline text-bone/55">Phone: </dt>
-                    <dd className="inline">{m.phone ?? "n/a"}</dd>
-                  </div>
-                  <div>
-                    <dt className="inline text-bone/55">Institution: </dt>
-                    <dd className="inline">{m.institution ?? "n/a"}</dd>
-                  </div>
-                  <div>
-                    <dt className="inline text-bone/55">Year: </dt>
-                    <dd className="inline">{m.study_year ?? "n/a"}</dd>
-                  </div>
-                  {m.tshirt_size ? (
-                    <div>
-                      <dt className="inline text-bone/55">T-shirt: </dt>
-                      <dd className="inline">{m.tshirt_size}</dd>
-                    </div>
-                  ) : null}
-                </dl>
-
-                <div className="mt-2 flex flex-wrap gap-3 text-caption">
-                  {HANDLES.map(({ key, label }) => {
-                    const url = safeExternalUrl(m[key] as string | null);
-                    return url ? (
-                      <a
-                        key={key}
-                        href={url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-skyblue hover:text-orange"
-                      >
-                        {label} ↗
-                      </a>
-                    ) : null;
-                  })}
-                </div>
-
-                {m.motivation ? (
-                  <p className="mt-2 border-l-2 border-bone/15 pl-3 text-sm italic text-bone/60">
-                    {m.motivation}
-                  </p>
-                ) : null}
-              </li>
+                member={m}
+                canEdit={admin.role === "super_admin"}
+              />
             ))}
           </ul>
 

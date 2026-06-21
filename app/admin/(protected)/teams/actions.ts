@@ -7,6 +7,7 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { logAudit } from "@/lib/admin/audit";
 import { DECISIONS, type Decision } from "@/lib/admin/types";
 import { isOfficialTeamName } from "@/lib/team-names";
+import { memberEditSchema, type MemberEditFields } from "@/lib/admin/member-edit";
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
 
@@ -210,5 +211,62 @@ export async function saveInternalNote(
 
   await logAudit(admin.id, "team.note", parsed.data.code);
   revalidateTeam(parsed.data.code);
+  return { ok: true };
+}
+
+/**
+ * Edit one participant's profile in place (super-admin only) — for when a
+ * registered participant is replaced by another. Name + email are required;
+ * the rest is optional. Role and team membership are not editable here.
+ */
+export async function updateMember(
+  participantIdRaw: string,
+  fieldsRaw: MemberEditFields,
+): Promise<ActionResult> {
+  let admin;
+  try {
+    admin = await assertRole("super_admin");
+  } catch (e) {
+    if (e instanceof ForbiddenError) return { ok: false, error: FORBIDDEN };
+    throw e;
+  }
+
+  const id = z.string().uuid().safeParse(participantIdRaw);
+  const fields = memberEditSchema.safeParse(fieldsRaw);
+  if (!id.success || !fields.success) {
+    return { ok: false, error: fields.success ? GENERIC : fields.error.issues[0].message };
+  }
+
+  const db = supabaseServer();
+  // Resolve the owning team so we revalidate/audit against its code.
+  const { data: current, error: readErr } = await db
+    .from("participants")
+    .select("id, team:teams(team_code)")
+    .eq("id", id.data)
+    .maybeSingle();
+  if (readErr || !current) return { ok: false, error: GENERIC };
+  // PostgREST types a to-one embed as an array; normalize either shape.
+  const teamRel = current.team as
+    | { team_code: string }
+    | { team_code: string }[]
+    | null;
+  const teamCode = Array.isArray(teamRel) ? teamRel[0]?.team_code : teamRel?.team_code;
+
+  const { error } = await db
+    .from("participants")
+    .update(fields.data)
+    .eq("id", id.data);
+  if (error) {
+    if (error.code === "23505")
+      return { ok: false, error: "That email is already used by another participant." };
+    return { ok: false, error: GENERIC };
+  }
+
+  await logAudit(admin.id, "member.edit", teamCode ?? null, {
+    participant_id: id.data,
+    full_name: fields.data.full_name,
+    email: fields.data.email,
+  });
+  revalidateTeam(teamCode);
   return { ok: true };
 }

@@ -34,6 +34,10 @@ yarn-error.log*
 .env*
 docs/*
 
+# mailer secrets — plaintext HackerRank passwords, never commit
+/credentials.json
+/mailer/teams.json
+
 # vercel
 .vercel
 
@@ -42,3 +46,5 @@ docs/*
 next-env.d.ts
 
 supabase/*
+
+mailer/*
