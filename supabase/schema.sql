@@ -306,3 +306,52 @@ create policy checkin_sessions_update on checkin_sessions
 drop policy if exists checkin_sessions_delete on checkin_sessions;
 create policy checkin_sessions_delete on checkin_sessions
   for delete using ( (select is_admin_at_least('super_admin')) );
+
+-- ===========================================================================
+-- FEEDBACK (canonical; mirrors supabase/migrations/0010_feedback.sql)
+-- Post-event feedback for participants (accepted teams) + contributors
+-- (organizers/mentors). Token-gated and ANONYMOUS: the submission stamp lives
+-- on the recipient row; feedback_responses has no link to a person.
+-- ===========================================================================
+
+create table if not exists contributors (
+  id                    uuid primary key default gen_random_uuid(),
+  full_name             text not null,
+  email                 text unique not null,
+  role                  text not null check (role in ('organizer','mentor')),
+  feedback_token        text unique default encode(gen_random_bytes(9), 'hex'),
+  feedback_sent_at      timestamptz,
+  feedback_submitted_at timestamptz,
+  created_by            uuid references admins(id),
+  created_at            timestamptz default now()
+);
+
+alter table participants add column if not exists feedback_token text unique
+  default encode(gen_random_bytes(9), 'hex');
+alter table participants add column if not exists feedback_sent_at      timestamptz;
+alter table participants add column if not exists feedback_submitted_at timestamptz;
+
+create table if not exists feedback_responses (
+  id           uuid primary key default gen_random_uuid(),
+  audience     text not null check (audience in ('participant','contributor')),
+  role         text check (role in ('organizer','mentor')),
+  answers      jsonb not null,
+  submitted_at timestamptz default now()
+);
+create index if not exists feedback_responses_audience_idx
+  on feedback_responses(audience, role);
+
+-- feedback invites can target a contributor instead of a team
+alter table emails add column if not exists contributor_id uuid references contributors(id);
+create index if not exists emails_contributor_idx on emails(contributor_id);
+
+alter table contributors       enable row level security;
+alter table feedback_responses enable row level security;
+
+drop policy if exists contributors_select on contributors;
+create policy contributors_select on contributors
+  for select using ( (select is_admin_at_least('manager')) );
+
+drop policy if exists feedback_responses_select on feedback_responses;
+create policy feedback_responses_select on feedback_responses
+  for select using ( (select is_admin_at_least('manager')) );

@@ -20,6 +20,7 @@ const NAV: NavItem[] = [
   { href: "/admin/checkin", label: "Check-in", min: "hr_checkin" },
   { href: "/admin/board", label: "Live board", min: "hr_checkin" },
   { href: "/admin/emails", label: "Emails", min: "super_admin" },
+  { href: "/admin/feedback", label: "Feedback", min: "super_admin" },
   { href: "/admin/audit", label: "Activity", min: "manager" },
   { href: "/admin/settings", label: "Settings", min: "super_admin" },
 ];
