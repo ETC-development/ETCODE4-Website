@@ -1,4 +1,4 @@
-// Feedback question definitions — the single source of truth for both the
+// Feedback question definitions: the single source of truth for both the
 // public form (rendering + validation) and the admin analytics (aggregation).
 // No `server-only`: this module is imported by the client form too.
 
@@ -71,19 +71,19 @@ const PARTICIPANT_QUESTIONS: Question[] = [
     scale: RATING,
     required: true,
   },
-  // rating matrix — one row per aspect, grouped for display
-  { id: "aspect_problems", type: "rating", label: "Problem / challenge quality", scale: RATING, required: true, section: "Rate each part of the day (1–5)", group: "aspects" },
+  // rating matrix: one row per aspect, grouped for display
+  { id: "aspect_problems", type: "rating", label: "Problem / challenge quality", scale: RATING, required: true, section: "Rate each part of the day", group: "aspects" },
   { id: "aspect_difficulty", type: "rating", label: "Difficulty balance", scale: RATING, required: true, group: "aspects" },
   { id: "aspect_organization", type: "rating", label: "Organization & communication", scale: RATING, required: true, group: "aspects" },
   { id: "aspect_venue", type: "rating", label: "Venue & facilities", scale: RATING, required: true, group: "aspects" },
   { id: "aspect_food", type: "rating", label: "Food & catering", scale: RATING, required: true, group: "aspects" },
   { id: "aspect_mentorship", type: "rating", label: "Mentorship & support", scale: RATING, required: true, group: "aspects" },
   { id: "aspect_schedule", type: "rating", label: "Schedule & timing", scale: RATING, required: true, group: "aspects" },
-  { id: "aspect_platform", type: "rating", label: "Registration & judging platform", scale: RATING, required: true, group: "aspects" },
+  { id: "aspect_platform", type: "rating", label: "Registration platform", scale: RATING, required: true, group: "aspects" },
   {
     id: "difficulty_level",
     type: "single",
-    label: "How was the difficulty of the problem set for your team?",
+    label: "How was the difficulty of the problems and challenges?",
     options: ["Too easy", "Just right", "Too hard"],
     required: true,
     section: "A few specifics",
@@ -114,7 +114,7 @@ const PARTICIPANT_QUESTIONS: Question[] = [
     id: "discovery_channel",
     type: "single",
     label: "How did you first hear about ETCODE?",
-    options: ["Instagram", "A friend", "ENSIA / a club", "A professor", "LinkedIn", "Other"],
+    options: ["Instagram", "A friend", "A media partner (other club)", "Other"],
     required: true,
   },
   {
@@ -135,14 +135,14 @@ const PARTICIPANT_QUESTIONS: Question[] = [
     id: "improve_most",
     type: "text",
     label: "What is the #1 thing we should improve next time?",
-    placeholder: "Be honest — this is the most useful answer you can give us.",
+    placeholder: "Be honest, this is the most useful answer you can give us.",
     required: true,
   },
   {
     id: "issues",
     type: "text",
     label: "Any technical or logistical problems you ran into?",
-    placeholder: "Optional — leave blank if everything ran smoothly.",
+    placeholder: "Optional. Leave blank if everything ran smoothly.",
   },
 ];
 
@@ -245,7 +245,7 @@ export function getForm(
       role: null,
       title: "Tell us how we did",
       intro:
-        "ETCODE 4 is a wrap. Your honest feedback shapes the next edition — it takes about 3 minutes and it's completely anonymous.",
+        "ETCODE 4 is a wrap. Your honest feedback shapes the next edition. It takes about 3 minutes and it's completely anonymous.",
       questions: PARTICIPANT_QUESTIONS,
     };
   }
@@ -255,7 +255,7 @@ export function getForm(
     role: role ?? "organizer",
     title: "Your contributor feedback",
     intro:
-      "Thank you for helping run ETCODE 4. Tell us what worked and what didn't — it's anonymous and takes about 3 minutes.",
+      "Thank you for helping run ETCODE 4. Tell us what worked and what didn't. It's anonymous and takes about 3 minutes.",
     questions: [...CONTRIBUTOR_CORE, ...block],
   };
 }

@@ -29,8 +29,8 @@ function ScaleHints({ q }: { q: Question }) {
   );
 }
 
-// Cumulative numeric rating (1–5): hovering or selecting N fills 1…N, like a
-// rating bar but with plain numbers — interactive, no icons.
+// Cumulative numeric rating (1 to 5): hovering or selecting N fills 1..N, like
+// a rating bar but with plain numbers, interactive, no icons.
 function RatingScale({
   q,
   value,
@@ -72,7 +72,7 @@ function RatingScale({
   );
 }
 
-// Discrete numbered chips — for NPS (0–10 standard: pick exactly one).
+// Discrete numbered chips for NPS (0 to 10 standard: pick exactly one).
 function ChipScale({
   q,
   value,
@@ -120,7 +120,7 @@ function ScalePicker(props: {
 }
 
 // ---------------------------------------------------------------------------
-// Rating matrix — a run of grouped 1–5 questions, rendered as aligned rows
+// Rating matrix: a run of grouped 1 to 5 questions, rendered as aligned rows
 // with one shared legend. Each row has its own cumulative hover fill.
 // ---------------------------------------------------------------------------
 function RatingRow({
@@ -228,7 +228,7 @@ function RatingMatrix({
 }
 
 // ---------------------------------------------------------------------------
-// Single / multi choice — pill buttons.
+// Single / multi choice: pill buttons.
 // ---------------------------------------------------------------------------
 function ChoicePicker({
   q,
