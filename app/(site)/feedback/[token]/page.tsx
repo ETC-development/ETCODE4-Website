@@ -32,11 +32,19 @@ export default async function FeedbackPage({
   const who = await lookupToken(token);
 
   let content: React.ReactNode;
-  if (!who.found || !who.eligible) {
+  if (!who.found) {
     content = (
       <Notice
         title="Link not valid"
         body="This feedback link isn't valid or has expired. If you think this is a mistake, reply to the email we sent you."
+      />
+    );
+  } else if (!who.eligible) {
+    // found, but a participant whose team wasn't accepted (the only ineligible case)
+    content = (
+      <Notice
+        title="Feedback isn't open for this link"
+        body="Post-event feedback is open to participants from accepted teams. If you believe your team was accepted and this is a mistake, reply to the email we sent you."
       />
     );
   } else if (who.submitted) {
