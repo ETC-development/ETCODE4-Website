@@ -16,17 +16,17 @@ const COPY: Record<
   { eyebrow: string; title: string; lead: string }
 > = {
   participant: {
-    eyebrow: "ETCODE 4 · Feedback",
+    eyebrow: "ETCODE 4: Feedback",
     title: "How did we do?",
     lead: "ETCODE 4 is a wrap, and you were on the floor. Your honest take is what shapes the next edition.",
   },
   organizer: {
-    eyebrow: "ETCODE 4 · Contributor feedback",
+    eyebrow: "ETCODE 4: Contributor feedback",
     title: "You helped run it.",
     lead: "Thank you for organizing ETCODE 4. Now tell us what worked and what slowed you down, candidly.",
   },
   mentor: {
-    eyebrow: "ETCODE 4 · Contributor feedback",
+    eyebrow: "ETCODE 4: Contributor feedback",
     title: "You guided the floor.",
     lead: "Thank you for mentoring at ETCODE 4. Your view from beside the players is exactly what we need.",
   },
@@ -43,7 +43,7 @@ export default function FeedbackInvite({
   const copy = COPY[audienceLabel];
   return (
     <Layout
-      preview="Tell us how ETCODE 4 went — it takes about 3 minutes."
+      preview="Tell us how ETCODE 4 went, it takes about 3 minutes."
       contactEmail={contactEmail}
       logoUrl={logoUrl}
     >
@@ -54,7 +54,7 @@ export default function FeedbackInvite({
       <P>{copy.lead}</P>
       <P>
         The form is short (about 3 minutes) and completely{" "}
-        <strong style={{ color: C.bone }}>anonymous</strong> — your answers are
+        <strong style={{ color: C.bone }}>anonymous</strong>; your answers are
         never linked back to you.
       </P>
 

@@ -10,9 +10,9 @@ import FeedbackInvite from "./FeedbackInvite";
 export type FeedbackAudienceLabel = "participant" | "organizer" | "mentor";
 
 export const FEEDBACK_SUBJECT: Record<FeedbackAudienceLabel, string> = {
-  participant: `${EVENT.name} — tell us how we did`,
-  organizer: `${EVENT.name} — your contributor feedback`,
-  mentor: `${EVENT.name} — your contributor feedback`,
+  participant: `${EVENT.name}, tell us how we did`,
+  organizer: `${EVENT.name}, your contributor feedback`,
+  mentor: `${EVENT.name}, your contributor feedback`,
 };
 
 function siteUrl(): string {

@@ -6,7 +6,7 @@ import FeedbackForm from "./FeedbackForm";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "ETCODE 4 — Feedback",
+  title: "ETCODE 4: Feedback",
   description: "Share your feedback on ETCODE 4.",
   robots: { index: false },
 };
@@ -15,7 +15,7 @@ function Notice({ title, body }: { title: string; body: string }) {
   return (
     <div className="w-full max-w-xl rounded-2xl border border-bone/10 bg-surface p-7 text-center">
       <p className="font-body text-caption font-semibold uppercase tracking-[0.18em] text-orange">
-        ETCODE 4 · Feedback
+        ETCODE 4: Feedback
       </p>
       <h1 className="mt-3 font-display text-title uppercase">{title}</h1>
       <p className="mt-3 text-bone/65">{body}</p>
