@@ -10,10 +10,26 @@ import type {
 } from "@/lib/feedback/questions";
 import { submitFeedback, type SubmitResult } from "./actions";
 
-// ---------------------------------------------------------------------------
-// Scale (rating / nps) — a row of numbered chips.
-// ---------------------------------------------------------------------------
-function ScalePicker({
+function scalePoints(q: Question): number[] {
+  const s = q.scale!;
+  const out: number[] = [];
+  for (let i = s.min; i <= s.max; i++) out.push(i);
+  return out;
+}
+
+function ScaleHints({ q }: { q: Question }) {
+  const s = q.scale!;
+  if (!s.minLabel && !s.maxLabel) return null;
+  return (
+    <div className="mt-1.5 flex justify-between text-caption text-bone/40">
+      <span>{s.minLabel}</span>
+      <span>{s.maxLabel}</span>
+    </div>
+  );
+}
+
+// Numbered chips (default for NPS — the 0–10 standard).
+function ChipScale({
   q,
   value,
   onChange,
@@ -22,13 +38,10 @@ function ScalePicker({
   value: number | undefined;
   onChange: (v: number) => void;
 }) {
-  const s = q.scale!;
-  const nums = [];
-  for (let i = s.min; i <= s.max; i++) nums.push(i);
   return (
     <div>
       <div className="flex flex-wrap gap-1.5">
-        {nums.map((n) => (
+        {scalePoints(q).map((n) => (
           <button
             key={n}
             type="button"
@@ -45,14 +58,102 @@ function ScalePicker({
           </button>
         ))}
       </div>
-      {(s.minLabel || s.maxLabel) && (
-        <div className="mt-1.5 flex justify-between text-caption text-bone/40">
-          <span>{s.minLabel}</span>
-          <span>{s.maxLabel}</span>
-        </div>
-      )}
+      <ScaleHints q={q} />
     </div>
   );
+}
+
+// Interactive stars (default for 1–5 ratings) — fills on hover/selection.
+function StarScale({
+  q,
+  value,
+  onChange,
+}: {
+  q: Question;
+  value: number | undefined;
+  onChange: (v: number) => void;
+}) {
+  const [hover, setHover] = useState(0);
+  const active = hover || value || 0;
+  return (
+    <div>
+      <div className="flex items-center gap-1" onMouseLeave={() => setHover(0)}>
+        {scalePoints(q).map((n) => (
+          <button
+            key={n}
+            type="button"
+            aria-label={`${n} of ${q.scale!.max}`}
+            aria-pressed={value === n}
+            onMouseEnter={() => setHover(n)}
+            onFocus={() => setHover(n)}
+            onBlur={() => setHover(0)}
+            onClick={() => onChange(n)}
+            className={cn(
+              "text-2xl leading-none transition-transform hover:scale-110",
+              n <= active ? "text-orange" : "text-bone/20",
+            )}
+          >
+            ★
+          </button>
+        ))}
+      </div>
+      <ScaleHints q={q} />
+    </div>
+  );
+}
+
+// Emoji faces — for the headline "how did it feel" question.
+const FACES = ["😣", "😕", "😐", "🙂", "😄"];
+function EmojiScale({
+  q,
+  value,
+  onChange,
+}: {
+  q: Question;
+  value: number | undefined;
+  onChange: (v: number) => void;
+}) {
+  const pts = scalePoints(q);
+  return (
+    <div>
+      <div className="flex flex-wrap gap-2">
+        {pts.map((n, i) => {
+          const face = FACES[Math.round((i / (pts.length - 1)) * (FACES.length - 1))];
+          const on = value === n;
+          return (
+            <button
+              key={n}
+              type="button"
+              aria-label={`${n} of ${q.scale!.max}`}
+              aria-pressed={on}
+              onClick={() => onChange(n)}
+              className={cn(
+                "grid h-12 w-12 place-items-center rounded-xl border text-2xl transition-all hover:scale-105",
+                on
+                  ? "border-orange bg-orange/15 scale-105"
+                  : "border-bone/15 bg-court opacity-60 hover:opacity-100",
+              )}
+            >
+              {face}
+            </button>
+          );
+        })}
+      </div>
+      <ScaleHints q={q} />
+    </div>
+  );
+}
+
+function ScalePicker(props: {
+  q: Question;
+  value: number | undefined;
+  onChange: (v: number) => void;
+}) {
+  const display =
+    props.q.display ?? (props.q.type === "rating" ? "stars" : "chips");
+  if (display === "emoji") return <EmojiScale {...props} />;
+  if (display === "stars") return <StarScale {...props} />;
+  return <ChipScale {...props} />;
 }
 
 // ---------------------------------------------------------------------------
@@ -178,11 +279,9 @@ function isEmpty(v: AnswerValue | undefined): boolean {
 export default function FeedbackForm({
   token,
   form,
-  name,
 }: {
   token: string;
   form: FormDef;
-  name: string;
 }) {
   const [answers, setAnswers] = useState<Answers>({});
   const [invalid, setInvalid] = useState<Set<string>>(new Set());
@@ -193,6 +292,10 @@ export default function FeedbackForm({
     () => form.questions.filter((q) => q.required).map((q) => q.id),
     [form],
   );
+
+  // Live progress over all questions (answered = non-empty).
+  const answeredCount = form.questions.filter((q) => !isEmpty(answers[q.id])).length;
+  const progress = Math.round((answeredCount / form.questions.length) * 100);
 
   // Question ids that open a new section (first question carrying each heading).
   const sectionHeads = useMemo(() => {
@@ -256,9 +359,32 @@ export default function FeedbackForm({
         ETCODE 4 · Feedback
       </p>
       <h1 className="mt-2 font-display text-statement uppercase">{form.title}</h1>
-      <p className="mt-3 max-w-prose text-bone/60">
-        Hi {name.split(" ")[0] || "there"} — {form.intro}
-      </p>
+      <p className="mt-3 max-w-prose text-bone/60">{form.intro}</p>
+
+      {/* clear up the personal-link vs anonymous confusion */}
+      <div className="mt-4 flex items-start gap-2.5 rounded-xl border border-bone/10 bg-surface px-4 py-3">
+        <span aria-hidden className="text-base leading-5">🔒</span>
+        <p className="text-sm text-bone/65">
+          <span className="font-semibold text-bone">Your answers are anonymous.</span>{" "}
+          This link is personal only so you can submit once and we can track how
+          many people replied — we never attach your name to your responses.
+        </p>
+      </div>
+
+      {/* live progress */}
+      <div className="sticky top-0 z-10 -mx-1 mt-5 bg-court/85 px-1 py-2 backdrop-blur">
+        <div className="flex items-center gap-3">
+          <div className="h-1.5 grow overflow-hidden rounded-full bg-surface">
+            <div
+              className="h-full bg-orange transition-all duration-300"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          <span className="shrink-0 text-caption tabular-nums text-bone/50">
+            {answeredCount}/{form.questions.length}
+          </span>
+        </div>
+      </div>
 
       {result && !result.ok ? (
         <p role="alert" className="mt-5 rounded-xl bg-danger/10 px-4 py-3 text-sm text-danger">

@@ -48,11 +48,7 @@ export default async function FeedbackPage({
     );
   } else {
     content = (
-      <FeedbackForm
-        token={token}
-        form={getForm(who.audience, who.role)}
-        name={who.name}
-      />
+      <FeedbackForm token={token} form={getForm(who.audience, who.role)} />
     );
   }
 
