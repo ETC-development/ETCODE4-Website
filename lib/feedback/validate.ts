@@ -8,45 +8,50 @@ export type ValidateResult =
   | { ok: true; answers: Answers }
   | { ok: false; error: string };
 
-function validateOne(q: Question, raw: unknown): AnswerValue | null | string {
-  // returns: cleaned value | null (skip, not answered) | string (error message)
-  const missing = `Please answer: ${q.label}`;
+// A single answer is either an error, a cleaned value to store, or skipped
+// (optional + not answered). A discriminated result is used deliberately: a
+// valid single-choice / text answer is itself a string, so "string == error"
+// sentinels would misread answers like "Yes" as an error message.
+type OneResult =
+  | { error: string }
+  | { value: AnswerValue }
+  | { skip: true };
+
+function validateOne(q: Question, raw: unknown): OneResult {
+  const missing = (): OneResult =>
+    q.required ? { error: `Please answer: ${q.label}` } : { skip: true };
 
   switch (q.type) {
     case "rating":
     case "nps": {
-      if (raw === undefined || raw === null || raw === "") {
-        return q.required ? missing : null;
-      }
+      if (raw === undefined || raw === null || raw === "") return missing();
       const n = typeof raw === "number" ? raw : Number(raw);
       const s = q.scale!;
       if (!Number.isFinite(n) || !Number.isInteger(n) || n < s.min || n > s.max) {
-        return `Invalid value for: ${q.label}`;
+        return { error: `Invalid value for: ${q.label}` };
       }
-      return n;
+      return { value: n };
     }
     case "single": {
-      if (raw === undefined || raw === null || raw === "") {
-        return q.required ? missing : null;
-      }
+      if (raw === undefined || raw === null || raw === "") return missing();
       if (typeof raw !== "string" || !q.options!.includes(raw)) {
-        return `Invalid choice for: ${q.label}`;
+        return { error: `Invalid choice for: ${q.label}` };
       }
-      return raw;
+      return { value: raw };
     }
     case "multi": {
       const arr = Array.isArray(raw) ? raw : [];
       const clean = arr.filter(
         (v): v is string => typeof v === "string" && q.options!.includes(v),
       );
-      if (clean.length === 0) return q.required ? missing : null;
+      if (clean.length === 0) return missing();
       // de-duplicate, preserve option order
-      return q.options!.filter((o) => clean.includes(o));
+      return { value: q.options!.filter((o) => clean.includes(o)) };
     }
     case "text": {
       const str = typeof raw === "string" ? raw.trim() : "";
-      if (str.length === 0) return q.required ? missing : null;
-      return str.slice(0, TEXT_MAX);
+      if (str.length === 0) return missing();
+      return { value: str.slice(0, TEXT_MAX) };
     }
   }
 }
@@ -63,8 +68,8 @@ export function validateAnswers(
 
   for (const q of form.questions) {
     const result = validateOne(q, src[q.id]);
-    if (typeof result === "string") return { ok: false, error: result };
-    if (result !== null) answers[q.id] = result;
+    if ("error" in result) return { ok: false, error: result.error };
+    if ("value" in result) answers[q.id] = result.value;
   }
 
   return { ok: true, answers };
