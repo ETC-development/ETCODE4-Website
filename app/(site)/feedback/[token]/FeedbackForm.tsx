@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { Check, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type {
   Answers,
@@ -28,7 +29,50 @@ function ScaleHints({ q }: { q: Question }) {
   );
 }
 
-// Numbered chips (default for NPS — the 0–10 standard).
+// Cumulative numeric rating (1–5): hovering or selecting N fills 1…N, like a
+// rating bar but with plain numbers — interactive, no icons.
+function RatingScale({
+  q,
+  value,
+  onChange,
+}: {
+  q: Question;
+  value: number | undefined;
+  onChange: (v: number) => void;
+}) {
+  const [hover, setHover] = useState(0);
+  const active = hover || value || 0;
+  return (
+    <div>
+      <div className="flex gap-1.5" onMouseLeave={() => setHover(0)}>
+        {scalePoints(q).map((n) => (
+          <button
+            key={n}
+            type="button"
+            aria-label={`${n} of ${q.scale!.max}`}
+            aria-pressed={value === n}
+            onMouseEnter={() => setHover(n)}
+            onFocus={() => setHover(n)}
+            onBlur={() => setHover(0)}
+            onClick={() => onChange(n)}
+            className={cn(
+              "h-11 flex-1 rounded-lg border font-mono text-sm tabular-nums transition-all duration-150",
+              n <= active
+                ? "border-orange bg-orange/20 text-bone"
+                : "border-bone/15 bg-court text-bone/55 hover:border-orange/40",
+              value === n && "ring-1 ring-orange",
+            )}
+          >
+            {n}
+          </button>
+        ))}
+      </div>
+      <ScaleHints q={q} />
+    </div>
+  );
+}
+
+// Discrete numbered chips — for NPS (0–10 standard: pick exactly one).
 function ChipScale({
   q,
   value,
@@ -63,97 +107,16 @@ function ChipScale({
   );
 }
 
-// Interactive stars (default for 1–5 ratings) — fills on hover/selection.
-function StarScale({
-  q,
-  value,
-  onChange,
-}: {
-  q: Question;
-  value: number | undefined;
-  onChange: (v: number) => void;
-}) {
-  const [hover, setHover] = useState(0);
-  const active = hover || value || 0;
-  return (
-    <div>
-      <div className="flex items-center gap-1" onMouseLeave={() => setHover(0)}>
-        {scalePoints(q).map((n) => (
-          <button
-            key={n}
-            type="button"
-            aria-label={`${n} of ${q.scale!.max}`}
-            aria-pressed={value === n}
-            onMouseEnter={() => setHover(n)}
-            onFocus={() => setHover(n)}
-            onBlur={() => setHover(0)}
-            onClick={() => onChange(n)}
-            className={cn(
-              "text-2xl leading-none transition-transform hover:scale-110",
-              n <= active ? "text-orange" : "text-bone/20",
-            )}
-          >
-            ★
-          </button>
-        ))}
-      </div>
-      <ScaleHints q={q} />
-    </div>
-  );
-}
-
-// Emoji faces — for the headline "how did it feel" question.
-const FACES = ["😣", "😕", "😐", "🙂", "😄"];
-function EmojiScale({
-  q,
-  value,
-  onChange,
-}: {
-  q: Question;
-  value: number | undefined;
-  onChange: (v: number) => void;
-}) {
-  const pts = scalePoints(q);
-  return (
-    <div>
-      <div className="flex flex-wrap gap-2">
-        {pts.map((n, i) => {
-          const face = FACES[Math.round((i / (pts.length - 1)) * (FACES.length - 1))];
-          const on = value === n;
-          return (
-            <button
-              key={n}
-              type="button"
-              aria-label={`${n} of ${q.scale!.max}`}
-              aria-pressed={on}
-              onClick={() => onChange(n)}
-              className={cn(
-                "grid h-12 w-12 place-items-center rounded-xl border text-2xl transition-all hover:scale-105",
-                on
-                  ? "border-orange bg-orange/15 scale-105"
-                  : "border-bone/15 bg-court opacity-60 hover:opacity-100",
-              )}
-            >
-              {face}
-            </button>
-          );
-        })}
-      </div>
-      <ScaleHints q={q} />
-    </div>
-  );
-}
-
 function ScalePicker(props: {
   q: Question;
   value: number | undefined;
   onChange: (v: number) => void;
 }) {
-  const display =
-    props.q.display ?? (props.q.type === "rating" ? "stars" : "chips");
-  if (display === "emoji") return <EmojiScale {...props} />;
-  if (display === "stars") return <StarScale {...props} />;
-  return <ChipScale {...props} />;
+  return props.q.type === "nps" ? (
+    <ChipScale {...props} />
+  ) : (
+    <RatingScale {...props} />
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -195,13 +158,13 @@ function ChoicePicker({
             aria-pressed={on}
             onClick={() => toggle(opt)}
             className={cn(
-              "rounded-lg border px-3.5 py-2 text-sm transition-colors",
+              "inline-flex items-center gap-1.5 rounded-lg border px-3.5 py-2 text-sm transition-colors",
               on
                 ? "border-orange bg-orange/15 text-bone"
                 : "border-bone/15 bg-court text-bone/70 hover:border-orange/40",
             )}
           >
-            {multi ? (on ? "✓ " : "") : ""}
+            {multi && on ? <Check className="size-3.5 text-orange" aria-hidden /> : null}
             {opt}
           </button>
         );
@@ -218,30 +181,41 @@ function Field({
   value,
   onChange,
   invalid,
+  answered,
 }: {
   q: Question;
   value: AnswerValue | undefined;
   onChange: (v: AnswerValue) => void;
   invalid: boolean;
+  answered: boolean;
 }) {
   const compact = !!q.group && (q.type === "rating" || q.type === "nps");
   return (
     <div
       className={cn(
         "rounded-xl border bg-surface p-4 transition-colors sm:p-5",
-        invalid ? "border-danger/50" : "border-bone/10",
+        invalid
+          ? "border-danger/50"
+          : answered
+            ? "border-orange/30"
+            : "border-bone/10",
         compact && "sm:flex sm:items-center sm:justify-between sm:gap-4",
       )}
     >
-      <label className={cn("block text-bone", compact ? "sm:mb-0 mb-3" : "mb-3")}>
-        <span className="text-[15px] leading-snug">{q.label}</span>
-        {q.required ? (
-          <span className="ml-1 text-orange" aria-hidden>
-            *
-          </span>
-        ) : (
-          <span className="ml-2 text-caption text-bone/35">optional</span>
-        )}
+      <label className={cn("flex items-start gap-1.5 text-bone", compact ? "sm:mb-0 mb-3" : "mb-3")}>
+        {answered ? (
+          <Check className="mt-0.5 size-4 shrink-0 text-orange" aria-hidden />
+        ) : null}
+        <span className="text-[15px] leading-snug">
+          {q.label}
+          {q.required ? (
+            <span className="ml-1 text-orange" aria-hidden>
+              *
+            </span>
+          ) : (
+            <span className="ml-2 text-caption text-bone/35">optional</span>
+          )}
+        </span>
       </label>
 
       {q.type === "rating" || q.type === "nps" ? (
@@ -363,7 +337,7 @@ export default function FeedbackForm({
 
       {/* clear up the personal-link vs anonymous confusion */}
       <div className="mt-4 flex items-start gap-2.5 rounded-xl border border-bone/10 bg-surface px-4 py-3">
-        <span aria-hidden className="text-base leading-5">🔒</span>
+        <Lock className="mt-0.5 size-4 shrink-0 text-orange" aria-hidden />
         <p className="text-sm text-bone/65">
           <span className="font-semibold text-bone">Your answers are anonymous.</span>{" "}
           This link is personal only so you can submit once and we can track how
@@ -407,6 +381,7 @@ export default function FeedbackForm({
                 value={answers[q.id]}
                 onChange={(v) => set(q.id, v)}
                 invalid={invalid.has(q.id)}
+                answered={!isEmpty(answers[q.id])}
               />
             </div>
           );

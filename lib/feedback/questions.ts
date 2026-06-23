@@ -7,9 +7,6 @@ export type ContributorRole = "organizer" | "mentor";
 
 export type QuestionType = "rating" | "nps" | "single" | "multi" | "text";
 
-/** How a scale question is rendered. Defaults: rating → stars, nps → chips. */
-export type ScaleDisplay = "chips" | "stars" | "emoji";
-
 export type Scale = {
   min: number;
   max: number;
@@ -26,8 +23,6 @@ export type Question = {
   options?: string[];
   /** rating / nps */
   scale?: Scale;
-  /** override the default scale rendering */
-  display?: ScaleDisplay;
   /** visual grouping of consecutive rating rows (the "matrix") */
   group?: string;
   /** section heading shown above this question */
@@ -65,9 +60,8 @@ const PARTICIPANT_QUESTIONS: Question[] = [
   {
     id: "overall_satisfaction",
     type: "rating",
-    label: "Overall, how did ETCODE 4 feel?",
-    scale: { min: 1, max: 5, minLabel: "Rough", maxLabel: "Loved it" },
-    display: "emoji",
+    label: "Overall, how satisfied were you with ETCODE 4?",
+    scale: { min: 1, max: 5, minLabel: "Not at all", maxLabel: "Loved it" },
     required: true,
   },
   {
@@ -77,8 +71,8 @@ const PARTICIPANT_QUESTIONS: Question[] = [
     scale: RATING,
     required: true,
   },
-  // rating matrix — one row per aspect, grouped for display (interactive stars)
-  { id: "aspect_problems", type: "rating", label: "Problem / challenge quality", scale: RATING, required: true, section: "Tap the stars — rate each part of the day", group: "aspects" },
+  // rating matrix — one row per aspect, grouped for display
+  { id: "aspect_problems", type: "rating", label: "Problem / challenge quality", scale: RATING, required: true, section: "Rate each part of the day (1–5)", group: "aspects" },
   { id: "aspect_difficulty", type: "rating", label: "Difficulty balance", scale: RATING, required: true, group: "aspects" },
   { id: "aspect_organization", type: "rating", label: "Organization & communication", scale: RATING, required: true, group: "aspects" },
   { id: "aspect_venue", type: "rating", label: "Venue & facilities", scale: RATING, required: true, group: "aspects" },
@@ -90,7 +84,7 @@ const PARTICIPANT_QUESTIONS: Question[] = [
     id: "difficulty_level",
     type: "single",
     label: "How was the difficulty of the problem set for your team?",
-    options: ["😴 Too easy", "🎯 Just right", "🔥 Too hard"],
+    options: ["Too easy", "Just right", "Too hard"],
     required: true,
     section: "A few specifics",
   },
@@ -99,13 +93,13 @@ const PARTICIPANT_QUESTIONS: Question[] = [
     type: "multi",
     label: "What were the best parts? (pick all that apply)",
     options: [
-      "🧩 The challenges",
-      "🔥 The atmosphere",
-      "🤝 Networking & people",
-      "🏆 Prizes & rewards",
-      "🧑‍🏫 Mentors & support",
-      "📚 Learning something new",
-      "🗂️ Organization",
+      "The challenges",
+      "The atmosphere",
+      "Networking & people",
+      "Prizes & rewards",
+      "Mentors & support",
+      "Learning something new",
+      "Organization",
     ],
     required: true,
   },
@@ -113,7 +107,7 @@ const PARTICIPANT_QUESTIONS: Question[] = [
     id: "return_intent",
     type: "single",
     label: "Will you take part in the next edition?",
-    options: ["💯 Absolutely", "🤔 Maybe", "🙅 No"],
+    options: ["Yes", "Maybe", "No"],
     required: true,
   },
   {
@@ -189,7 +183,7 @@ const CONTRIBUTOR_CORE: Question[] = [
     id: "contribute_again",
     type: "single",
     label: "Would you contribute again next edition?",
-    options: ["💯 Absolutely", "🤔 Maybe", "🙅 No"],
+    options: ["Yes", "Maybe", "No"],
     required: true,
   },
 ];
@@ -199,7 +193,7 @@ const ORGANIZER_BLOCK: Question[] = [
     id: "org_workload",
     type: "single",
     label: "How was your workload?",
-    options: ["🪶 Too light", "⚖️ Balanced", "🥵 Too heavy"],
+    options: ["Too light", "Balanced", "Too heavy"],
     required: true,
     section: "Your role: organizer",
   },
@@ -221,7 +215,7 @@ const MENTOR_BLOCK: Question[] = [
     id: "mentor_skill_vs_expectation",
     type: "single",
     label: "How did participants' skill level compare to your expectation?",
-    options: ["📉 Lower than expected", "🎯 As expected", "📈 Higher than expected"],
+    options: ["Lower than expected", "As expected", "Higher than expected"],
     required: true,
     section: "Your role: mentor",
   },
