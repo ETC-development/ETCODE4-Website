@@ -43,7 +43,7 @@ export default async function FeedbackPage({
     content = (
       <Notice
         title="Already submitted"
-        body="You've already shared your feedback — thank you. Your responses are anonymous, so there's nothing more to do."
+        body="You've already shared your feedback, thank you. Your responses are anonymous, so there's nothing more to do."
       />
     );
   } else {

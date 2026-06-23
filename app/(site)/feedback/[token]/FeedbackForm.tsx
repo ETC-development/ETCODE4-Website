@@ -120,6 +120,114 @@ function ScalePicker(props: {
 }
 
 // ---------------------------------------------------------------------------
+// Rating matrix — a run of grouped 1–5 questions, rendered as aligned rows
+// with one shared legend. Each row has its own cumulative hover fill.
+// ---------------------------------------------------------------------------
+function RatingRow({
+  q,
+  value,
+  onChange,
+  invalid,
+}: {
+  q: Question;
+  value: number | undefined;
+  onChange: (v: number) => void;
+  invalid: boolean;
+}) {
+  const [hover, setHover] = useState(0);
+  const active = hover || value || 0;
+  return (
+    <div
+      id={`q-${q.id}`}
+      className={cn(
+        "flex flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-lg px-2 py-2.5 transition-colors -mx-2",
+        invalid && "bg-danger/10",
+      )}
+    >
+      <span
+        className={cn(
+          "flex items-center gap-1.5 text-[15px] leading-snug",
+          invalid ? "text-danger" : value ? "text-bone" : "text-bone/85",
+        )}
+      >
+        {value ? <Check className="size-4 shrink-0 text-orange" aria-hidden /> : null}
+        {q.label}
+        {q.required ? <span className="text-orange" aria-hidden>*</span> : null}
+      </span>
+      <div className="flex shrink-0 gap-1.5" onMouseLeave={() => setHover(0)}>
+        {scalePoints(q).map((n) => (
+          <button
+            key={n}
+            type="button"
+            aria-label={`${q.label}: ${n} of ${q.scale!.max}`}
+            aria-pressed={value === n}
+            onMouseEnter={() => setHover(n)}
+            onFocus={() => setHover(n)}
+            onBlur={() => setHover(0)}
+            onClick={() => onChange(n)}
+            className={cn(
+              "size-9 rounded-md border font-mono text-sm tabular-nums transition-all duration-150 hover:scale-105",
+              n <= active
+                ? "border-orange bg-orange/20 text-bone"
+                : "border-bone/15 bg-court text-bone/55 hover:border-orange/40",
+              value === n && "bg-orange text-court",
+            )}
+          >
+            {n}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function RatingMatrix({
+  questions,
+  answers,
+  onChange,
+  invalid,
+  sectionHead,
+}: {
+  questions: Question[];
+  answers: Answers;
+  onChange: (id: string, v: number) => void;
+  invalid: Set<string>;
+  sectionHead?: string;
+}) {
+  const s = questions[0]?.scale;
+  const rated = questions.filter((q) => answers[q.id] != null).length;
+  return (
+    <div>
+      {sectionHead ? (
+        <h2 className="mb-2 mt-5 font-body text-caption font-semibold uppercase tracking-[0.16em] text-bone/45">
+          {sectionHead}
+        </h2>
+      ) : null}
+      <div className="rounded-xl border border-bone/10 bg-surface p-4 sm:p-5">
+        <div className="mb-2 flex items-center justify-between text-caption text-bone/45">
+          <span>
+            {s?.minLabel ?? "Low"} <span className="text-bone/30">1 → 5</span>{" "}
+            {s?.maxLabel ?? "High"}
+          </span>
+          <span className="tabular-nums">{rated}/{questions.length} rated</span>
+        </div>
+        <div className="flex flex-col divide-y divide-bone/8">
+          {questions.map((q) => (
+            <RatingRow
+              key={q.id}
+              q={q}
+              value={answers[q.id] as number | undefined}
+              onChange={(v) => onChange(q.id, v)}
+              invalid={invalid.has(q.id)}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Single / multi choice — pill buttons.
 // ---------------------------------------------------------------------------
 function ChoicePicker({
@@ -189,7 +297,6 @@ function Field({
   invalid: boolean;
   answered: boolean;
 }) {
-  const compact = !!q.group && (q.type === "rating" || q.type === "nps");
   return (
     <div
       className={cn(
@@ -199,10 +306,9 @@ function Field({
           : answered
             ? "border-orange/30"
             : "border-bone/10",
-        compact && "sm:flex sm:items-center sm:justify-between sm:gap-4",
       )}
     >
-      <label className={cn("flex items-start gap-1.5 text-bone", compact ? "sm:mb-0 mb-3" : "mb-3")}>
+      <label className="mb-3 flex items-start gap-1.5 text-bone">
         {answered ? (
           <Check className="mt-0.5 size-4 shrink-0 text-orange" aria-hidden />
         ) : null}
@@ -341,7 +447,7 @@ export default function FeedbackForm({
         <p className="text-sm text-bone/65">
           <span className="font-semibold text-bone">Your answers are anonymous.</span>{" "}
           This link is personal only so you can submit once and we can track how
-          many people replied — we never attach your name to your responses.
+          many people replied, we never attach your name to your responses.
         </p>
       </div>
 
@@ -367,25 +473,49 @@ export default function FeedbackForm({
       ) : null}
 
       <div className="mt-7 flex flex-col gap-3">
-        {form.questions.map((q) => {
-          const sectionHead = sectionHeads.get(q.id);
-          return (
-            <div key={q.id} id={`q-${q.id}`}>
-              {sectionHead ? (
-                <h2 className="mb-2 mt-5 font-body text-caption font-semibold uppercase tracking-[0.16em] text-bone/45">
-                  {sectionHead}
-                </h2>
-              ) : null}
-              <Field
-                q={q}
-                value={answers[q.id]}
-                onChange={(v) => set(q.id, v)}
-                invalid={invalid.has(q.id)}
-                answered={!isEmpty(answers[q.id])}
-              />
-            </div>
-          );
-        })}
+        {(() => {
+          const out: React.ReactNode[] = [];
+          const qs = form.questions;
+          for (let i = 0; i < qs.length; ) {
+            const q = qs[i];
+            const sectionHead = sectionHeads.get(q.id);
+            // collapse a run of same-group rating rows into one aligned matrix
+            if (q.group) {
+              const run: Question[] = [];
+              const g = q.group;
+              while (i < qs.length && qs[i].group === g) run.push(qs[i++]);
+              out.push(
+                <RatingMatrix
+                  key={g}
+                  questions={run}
+                  answers={answers}
+                  onChange={set}
+                  invalid={invalid}
+                  sectionHead={sectionHead}
+                />,
+              );
+              continue;
+            }
+            out.push(
+              <div key={q.id} id={`q-${q.id}`}>
+                {sectionHead ? (
+                  <h2 className="mb-2 mt-5 font-body text-caption font-semibold uppercase tracking-[0.16em] text-bone/45">
+                    {sectionHead}
+                  </h2>
+                ) : null}
+                <Field
+                  q={q}
+                  value={answers[q.id]}
+                  onChange={(v) => set(q.id, v)}
+                  invalid={invalid.has(q.id)}
+                  answered={!isEmpty(answers[q.id])}
+                />
+              </div>,
+            );
+            i++;
+          }
+          return out;
+        })()}
       </div>
 
       <div className="mt-7 flex items-center justify-between gap-4">
